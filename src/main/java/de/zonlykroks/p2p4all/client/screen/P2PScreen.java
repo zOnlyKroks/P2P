@@ -92,7 +92,7 @@ public class P2PScreen extends Screen {
             return;
         }
 
-        int port = 40_000 + ( P2PConfig.password.isEmpty() ? 25565 : P2PConfig.password.hashCode() % 20_000);
+        int port = 40_000 + ( P2PConfig.password.isEmpty() ? 0 : P2PConfig.password.hashCode() % 20_000);
         int port1 = P2PConfig.areYouTheServer ? port + 1 : port;
         int port2 = P2PConfig.areYouTheServer ? port : port + 1;
 
