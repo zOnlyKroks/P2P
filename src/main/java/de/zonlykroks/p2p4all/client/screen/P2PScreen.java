@@ -99,18 +99,16 @@ public class P2PScreen extends Screen {
         CompletableFuture<Void> future = GoleExecutor.execute(new File(P2PConfig.goleFilePath), "tcp", P2PConfig.TARGET_IP, port1, port2, !P2PConfig.areYouTheServer, gamePort);
 
         long wait = System.currentTimeMillis() + (150000);
-        AtomicBoolean cancelled = new AtomicBoolean(false);
+        while (!future.isDone() && System.currentTimeMillis() <= wait) {
+            //Do nothing
+        }
 
-        ClientTickEvents.END_CLIENT_TICK.register(client1 -> {
-            if(cancelled.get()) return;
-            if(future.isDone() || System.currentTimeMillis() >= wait) {
-                cancelled.set(true);
-                future.cancel(true);
-                if(MinecraftClient.getInstance().player != null) {
-                    MinecraftClient.getInstance().player.sendMessage(Text.literal("Failed to connect after 2 minutes and 30 seconds, relaunch server by going in and out of the p2p menu"));
-                }
-            }
-        });
+        if (!future.isDone()) {
+            future.cancel(true);
+            System.out.println("Failed to connect after 2 minutes and 30 seconds");
+            System.exit(0);
+            return;
+        }
 
         if (!P2PConfig.areYouTheServer) {
             System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
