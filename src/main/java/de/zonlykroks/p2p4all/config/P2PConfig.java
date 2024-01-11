@@ -11,6 +11,4 @@ public class P2PConfig extends MidnightConfig {
 
     @Entry public static String goleFilePath = "";
 
-    @Entry public static boolean isIntelCPU = true;
-
 }

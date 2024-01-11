@@ -21,6 +21,8 @@ import java.util.zip.ZipInputStream;
 
 public class GoleDownloader {
 
+    private final OSType type;
+
     public GoleDownloader() throws Throwable {
         String os = System.getProperty("os.name").toLowerCase();
         OSType osType = null;
@@ -32,6 +34,8 @@ public class GoleDownloader {
         }else if(os.contains("linux")) {
             osType = OSType.LINUX;
         }
+
+        this.type = osType;
 
         File configFolder = new File(FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/");
 
@@ -110,15 +114,14 @@ public class GoleDownloader {
             zipEntry = zis.getNextEntry();
         }
 
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        CentralProcessor cpu = hal.getProcessor();
-        String name = cpu.getProcessorIdentifier().getName();
+        if(this.type == OSType.WINDOWS) {
+            P2PConfig.goleFilePath = extractedFileFolder.getAbsolutePath() + "/gole-windows-amd64.exe";
+        }else if(this.type == OSType.LINUX) {
+            P2PConfig.goleFilePath = extractedFileFolder.getAbsolutePath() + "/gole-linux-amd64";
+        }else if(this.type == OSType.MAC) {
+            P2PConfig.goleFilePath = extractedFileFolder.getAbsolutePath() + "/gole-darwin-amd64.exe";
+        }
 
-        boolean isIntel = !name.toLowerCase().contains("amd");
-
-        P2PConfig.goleFilePath = extractedFileFolder.getAbsolutePath() + "/gole-windows-" + (isIntel ? "386.exe" : "amd64.exe");
-        P2PConfig.isIntelCPU = isIntel;
         P2PConfig.write("p2p4all");
     }
 
