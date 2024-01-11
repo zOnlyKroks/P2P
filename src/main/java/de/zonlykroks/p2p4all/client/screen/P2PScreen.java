@@ -83,7 +83,7 @@ public class P2PScreen extends Screen {
     }
 
     private void startGole() throws IOException {
-        int gamePort = 25565;
+        int gamePort = P2PConfig.areYouTheServer ? 25565 : 39332;
 
         try {
             InetAddress.getByName(P2PConfig.TARGET_IP);
