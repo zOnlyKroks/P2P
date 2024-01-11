@@ -76,7 +76,7 @@ public class GoleDownloader {
         }
         InputStream input  = http.getInputStream();
         byte[]       buffer = new byte[4096];
-        int          n      = -1;
+        int          n;
         OutputStream output = new FileOutputStream(zipFileName);
         while ((n = input.read(buffer)) != -1) {
             output.write( buffer, 0, n );

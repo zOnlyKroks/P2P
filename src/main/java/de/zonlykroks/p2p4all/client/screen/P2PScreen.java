@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class P2PScreen extends Screen {
     public P2PScreen() {
@@ -98,10 +99,16 @@ public class P2PScreen extends Screen {
         CompletableFuture<Void> future = GoleExecutor.execute(new File(P2PConfig.goleFilePath), "tcp", P2PConfig.TARGET_IP, port1, port2, !P2PConfig.areYouTheServer, gamePort);
 
         long wait = System.currentTimeMillis() + (150000);
+        AtomicBoolean cancelled = new AtomicBoolean(false);
+
         ClientTickEvents.END_CLIENT_TICK.register(client1 -> {
+            if(cancelled.get()) return;
             if(future.isDone() || System.currentTimeMillis() >= wait) {
+                cancelled.set(true);
                 future.cancel(true);
-                throw new RuntimeException("Failed to connect after 2 minutes and 30 seconds");
+                if(MinecraftClient.getInstance().player != null) {
+                    MinecraftClient.getInstance().player.sendMessage(Text.literal("Failed to connect after 2 minutes and 30 seconds, relaunch server by going in and out of the p2p menu"));
+                }
             }
         });
 
