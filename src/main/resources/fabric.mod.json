@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "p2p4all",
+  "version": "${version}",
+  "name": "P2P4All",
+  "description": "",
+  "authors": [
+    "zOnlyKroks",
+    "Four_Griffins"
+  ],
+  "contact": {
+    "repo": "https://github.com/finnr/P2P4All"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "de.zonlykroks.p2p4all.client.P2P4AllClient"
+    ]
+  },
+  "mixins": [
+    "p2p4all.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
