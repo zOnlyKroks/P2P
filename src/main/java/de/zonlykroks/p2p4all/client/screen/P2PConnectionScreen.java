@@ -37,21 +37,15 @@ public class P2PConnectionScreen extends Screen {
         gridWidget.getMainPositioner().marginX(5).marginBottom(4).alignHorizontalCenter();
         GridWidget.Adder adder = gridWidget.createAdder(2);
 
-        adder.add(new TextWidget(Text.literal("Your ID: " + Base64.getEncoder().encodeToString(getPublicIP().getBytes(StandardCharsets.UTF_8))), MinecraftClient.getInstance().textRenderer));
+        String encodedIP = Base64.getEncoder().encodeToString(getPublicIP().getBytes(StandardCharsets.UTF_8));
 
+        EditBoxWidget ipEditWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0,200,20,Text.literal("Your ID: " + encodedIP), Text.literal("Your ID: " + encodedIP));
+        adder.add(ipEditWidget);
+        ipEditWidget.setText("Your ID: " + encodedIP);
+        
         EditBoxWidget targetIpWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal("Target ID"), Text.empty());
         adder.add(targetIpWidget);
         targetIpWidget.setText(P2PConfig.TARGET_IP);
-
-        ButtonWidget copyWidget = ButtonWidget.builder(Text.literal("Copy ID"), button -> {
-            System.setProperty("java.awt.headless", "false");
-            String str = Base64.getEncoder().encodeToString(getPublicIP().getBytes(StandardCharsets.UTF_8));
-            Clipboard clip = Toolkit.getDefaultToolkit()
-                    .getSystemClipboard();
-            StringSelection strse1 = new StringSelection(str);
-            clip.setContents(strse1, strse1);
-        }).width(200).build();
-        adder.add(copyWidget);
 
         EditBoxWidget passwordWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal(" Target ID (must match on both sides, unique for each client!)"), Text.empty());
         adder.add(passwordWidget);
