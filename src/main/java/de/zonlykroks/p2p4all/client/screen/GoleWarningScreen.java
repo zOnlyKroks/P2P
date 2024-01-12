@@ -15,12 +15,14 @@ import net.minecraft.text.Text;
 public class GoleWarningScreen extends WarningScreen {
 
     private final Screen parent;
+    private final boolean isServer;
 
-    public GoleWarningScreen(Screen parent) {
+    public GoleWarningScreen(Screen parent, boolean isServer) {
         super(Text.literal("Gole Installation Warning Screen"),
                 Text.literal("Once you click on proceed, we WILL download an EXTERNAL programm called, gole (https://github.com/shawwwn/Gole), if you want to download it yourself, close this window, close the game and put the .exe corresponding to your operating system into the config folder of this mod."),
                 Text.empty());
         this.parent = parent;
+        this.isServer = isServer;
     }
 
     @Override
@@ -32,7 +34,7 @@ public class GoleWarningScreen extends WarningScreen {
     protected void initButtons(int yOffset) {
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.PROCEED, button -> {
             try {
-                new GoleDownloader(this.parent);
+                new GoleDownloader(this.parent, isServer);
             } catch (Throwable e) {
                 e.printStackTrace();
             }

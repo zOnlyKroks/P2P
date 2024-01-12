@@ -14,7 +14,6 @@ public class StartLanServerMixin {
     @Shadow
     private int port;
 
-
     @Inject(method = "method_19851(Lnet/minecraft/server/integrated/IntegratedServer;Lnet/minecraft/client/gui/widget/ButtonWidget;)V", at = @At("HEAD"))
     public void p2p4all$changePort(IntegratedServer integratedServer, ButtonWidget button, CallbackInfo ci) {
         this.port = 25565;

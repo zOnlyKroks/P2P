@@ -22,7 +22,7 @@ public abstract class TitleScreenMixin extends Screen {
     @Inject(method = "init", at = @At("TAIL"))
     public void p2p4all$addButton(CallbackInfo ci) {
         ButtonWidget p2pButton = this.addDrawableChild(ButtonWidget.builder(Text.literal("P2P"), button -> {
-            MinecraftClient.getInstance().setScreen(new GoleWarningScreen(this));
+            MinecraftClient.getInstance().setScreen(new GoleWarningScreen(this, false));
         }).width(22).build());
 
         int l = this.height / 4 + 48;

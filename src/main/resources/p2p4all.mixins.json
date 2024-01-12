@@ -7,6 +7,7 @@
   ],
   "client": [
     "DirectConnectScreenMixin",
+    "GameMenuScreenMixin",
     "MinecraftClientMixin",
     "StartLanServerMixin",
     "TitleScreenMixin"
