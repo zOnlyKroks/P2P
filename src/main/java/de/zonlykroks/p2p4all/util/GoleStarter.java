@@ -10,6 +10,8 @@ import net.minecraft.client.gui.screen.Screen;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
 public class GoleStarter {
@@ -19,10 +21,12 @@ public class GoleStarter {
     public GoleStarter(Screen parent, Screen where) throws IOException {
         int gamePort = P2PConfig.areYouTheServer ? 25565 : 39332;
 
+        String targetIp = new String(Base64.getDecoder().decode(P2PConfig.TARGET_IP.getBytes(StandardCharsets.UTF_8)));
+
         try {
-            InetAddress.getByName(P2PConfig.TARGET_IP);
+            InetAddress.getByName(targetIp);
         } catch (Exception ex) {
-            System.out.println("Couldn't parse IP address \"" + P2PConfig.TARGET_IP + "\"");
+            System.out.println("Couldn't parse IP address \"" + targetIp + "\"");
             return;
         }
 
@@ -30,7 +34,7 @@ public class GoleStarter {
         int port1 = P2PConfig.areYouTheServer ? port + 1 : port;
         int port2 = P2PConfig.areYouTheServer ? port : port + 1;
 
-        CompletableFuture<Void> future = GoleExecutor.execute(new File(P2PConfig.goleFilePath), "tcp", P2PConfig.TARGET_IP, port1, port2, !P2PConfig.areYouTheServer, gamePort);
+        CompletableFuture<Void> future = GoleExecutor.execute(new File(P2PConfig.goleFilePath), "tcp", targetIp, port1, port2, !P2PConfig.areYouTheServer, gamePort);
 
         this.goleLogScreen = new GoleLogScreen(parent, where, future);
         GoleLogScreen.connectionLog = "";

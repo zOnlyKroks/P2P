@@ -6,11 +6,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -41,15 +43,22 @@ public class P2PConnectionScreen extends Screen {
         adder.add(targetIpWidget);
         targetIpWidget.setText(P2PConfig.TARGET_IP);
 
-        EmptyWidget emptyWidget = new EmptyWidget(0,0);
-        adder.add(emptyWidget);
+        ButtonWidget copyWidget = ButtonWidget.builder(Text.literal("Copy ID"), button -> {
+            System.setProperty("java.awt.headless", "false");
+            String str = Base64.getEncoder().encodeToString(getPublicIP().getBytes(StandardCharsets.UTF_8));
+            Clipboard clip = Toolkit.getDefaultToolkit()
+                    .getSystemClipboard();
+            StringSelection strse1 = new StringSelection(str);
+            clip.setContents(strse1, strse1);
+        }).width(200).build();
+        adder.add(copyWidget);
 
         EditBoxWidget passwordWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal(" Target ID (must match on both sides, unique for each client!)"), Text.empty());
         adder.add(passwordWidget);
         passwordWidget.setText(P2PConfig.password);
 
         adder.add(ButtonWidget.builder(ScreenTexts.DONE, button -> {
-            P2PConfig.TARGET_IP = new String(Base64.getDecoder().decode(targetIpWidget.getText().getBytes(StandardCharsets.UTF_8)));
+            P2PConfig.TARGET_IP = targetIpWidget.getText();
             P2PConfig.password = passwordWidget.getText();
             P2PConfig.areYouTheServer = this.isServer;
             P2PConfig.write("p2p4all");
