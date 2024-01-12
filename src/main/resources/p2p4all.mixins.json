@@ -6,6 +6,9 @@
   "mixins": [
   ],
   "client": [
+    "DirectConnectScreenMixin",
+    "MinecraftClientMixin",
+    "StartLanServerMixin",
     "TitleScreenMixin"
   ],
   "injectors": {

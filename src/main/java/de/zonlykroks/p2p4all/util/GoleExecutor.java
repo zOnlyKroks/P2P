@@ -1,5 +1,8 @@
 package de.zonlykroks.p2p4all.util;
 
+import de.zonlykroks.p2p4all.client.screen.GoldConnectionLoginScreen;
+import de.zonlykroks.p2p4all.event.MinecraftClientShutdownEvent;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +58,7 @@ public class GoleExecutor {
             }
             while (line != null) {
                 System.out.println(line);
+                GoldConnectionLoginScreen.connectionLog = GoldConnectionLoginScreen.connectionLog + line + "\n";
                 if (line.toLowerCase().contains("waiting")) {
                     future.complete(null);
                 }

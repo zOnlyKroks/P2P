@@ -32,7 +32,7 @@ public class GoleWarningScreen extends WarningScreen {
     protected void initButtons(int yOffset) {
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.PROCEED, button -> {
             try {
-                new GoleDownloader();
+                new GoleDownloader(this.parent);
             } catch (Throwable e) {
                 e.printStackTrace();
             }

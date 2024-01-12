@@ -1,27 +1,25 @@
 package de.zonlykroks.p2p4all.client.screen;
 
 import de.zonlykroks.p2p4all.config.P2PConfig;
-import de.zonlykroks.p2p4all.util.GoleExecutor;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.URL;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class P2PScreen extends Screen {
-    public P2PScreen() {
+
+    private final Screen parent;
+
+    public P2PScreen(Screen parent) {
         super(Text.literal("P2P, here be dragons!"));
+        this.parent = parent;
     }
 
     @Override
@@ -55,14 +53,13 @@ public class P2PScreen extends Screen {
             P2PConfig.TARGET_IP = targetIpWidget.getText();
             P2PConfig.password = passwordWidget.getText();
             P2PConfig.write("p2p4all");
-            this.client.setScreen(new TitleScreen(true));
 
-            try {
-                startGole();
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).width(200).build(), 2, adder.copyPositioner().marginTop(6));
+            MinecraftClient.getInstance().setScreen(new GoldConnectionLoginScreen(this.parent,P2PConfig.areYouTheServer ? new SelectWorldScreen(this.parent) : new MultiplayerScreen(this.parent)));
+        }).width(100).build(), 2, adder.copyPositioner().marginTop(6));
+
+        adder.add(ButtonWidget.builder(ScreenTexts.CANCEL, button -> {
+
+        }).width(100).build(),2, adder.copyPositioner().marginTop(6));
 
         gridWidget.refreshPositions();
         SimplePositioningWidget.setPos(gridWidget, 0, this.height / 6 - 12, this.width, this.height, 0.5F, 0.0F);
@@ -79,41 +76,6 @@ public class P2PScreen extends Screen {
         }catch (Exception e) {
             e.printStackTrace();
             return "127.0.0.1";
-        }
-    }
-
-    private void startGole() throws IOException {
-        int gamePort = P2PConfig.areYouTheServer ? 25565 : 39332;
-
-        try {
-            InetAddress.getByName(P2PConfig.TARGET_IP);
-        } catch (Exception ex) {
-            System.out.println("Couldn't parse IP address \"" + P2PConfig.TARGET_IP + "\"");
-            return;
-        }
-
-        int port = 40_000 + ( P2PConfig.password.isEmpty() ? 0 : P2PConfig.password.hashCode() % 20_000);
-        int port1 = P2PConfig.areYouTheServer ? port + 1 : port;
-        int port2 = P2PConfig.areYouTheServer ? port : port + 1;
-
-        CompletableFuture<Void> future = GoleExecutor.execute(new File(P2PConfig.goleFilePath), "tcp", P2PConfig.TARGET_IP, port1, port2, !P2PConfig.areYouTheServer, gamePort);
-
-        long wait = System.currentTimeMillis() + (150000);
-        while (!future.isDone() && System.currentTimeMillis() <= wait) {
-            //Do nothing
-        }
-
-        if (!future.isDone()) {
-            future.cancel(true);
-            System.out.println("Failed to connect after 2 minutes and 30 seconds");
-            System.exit(0);
-            return;
-        }
-
-        if (!P2PConfig.areYouTheServer) {
-            System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
-        } else {
-            System.out.println("Connection established!\nWaiting for the player to join");
         }
     }
 }

@@ -5,6 +5,10 @@ import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ClientModInitializer;
 
 public class P2P4AllClient implements ClientModInitializer {
+
+    public static String SERVER_CONNECT_ADDRESS = null;
+
+
     /**
      * Runs the mod initializer on the client environment.
      */

@@ -4,6 +4,7 @@ import de.zonlykroks.p2p4all.client.screen.P2PScreen;
 import de.zonlykroks.p2p4all.config.P2PConfig;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -23,7 +24,7 @@ public class GoleDownloader {
 
     private final OSType type;
 
-    public GoleDownloader() throws Throwable {
+    public GoleDownloader(Screen parent) throws Throwable {
         String os = System.getProperty("os.name").toLowerCase();
         OSType osType = null;
 
@@ -48,7 +49,7 @@ public class GoleDownloader {
         }
 
         if(Files.list(Path.of(FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/")).findAny().isPresent()) {
-            MinecraftClient.getInstance().setScreen(new P2PScreen());
+            MinecraftClient.getInstance().setScreen(new P2PScreen(parent));
             return;
         }
 
@@ -59,7 +60,7 @@ public class GoleDownloader {
             default -> throw new RuntimeException("Could not download gole, check internet connection!");
         }
 
-        MinecraftClient.getInstance().setScreen(new P2PScreen());
+        MinecraftClient.getInstance().setScreen(new P2PScreen(parent));
     }
 
     private void download(String link, String fileName) throws Throwable
