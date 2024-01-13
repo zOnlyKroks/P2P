@@ -4,13 +4,16 @@
   "package": "de.zonlykroks.p2p4all.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "accessors.AnimatedDynamicTextureImageAccessor",
+    "ui.ImageRenderManagerMixin"
   ],
   "client": [
     "DirectConnectScreenMixin",
     "GameMenuScreenMixin",
     "MinecraftClientMixin",
     "StartLanServerMixin",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "accessors.ScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

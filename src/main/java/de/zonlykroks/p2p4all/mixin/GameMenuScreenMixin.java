@@ -1,6 +1,5 @@
 package de.zonlykroks.p2p4all.mixin;
 
-import de.zonlykroks.p2p4all.client.screen.GoleWarningScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -30,7 +29,7 @@ public class GameMenuScreenMixin extends Screen {
     @Inject(method = "initWidgets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;isInSingleplayer()Z", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     public void p2p4all$addCustomButton(CallbackInfo ci, GridWidget gridWidget, GridWidget.Adder adder) {
         this.p2pButtonWidget = ButtonWidget.builder(Text.literal("P2P"), (button) -> {
-            MinecraftClient.getInstance().setScreen(new GoleWarningScreen(this, true));
+//            MinecraftClient.getInstance().setScreen(new GoleWarningScreen(this, true));
         }).width(204).build();
 
         adder.add(p2pButtonWidget, 2);

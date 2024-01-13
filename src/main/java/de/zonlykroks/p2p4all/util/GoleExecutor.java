@@ -1,6 +1,5 @@
 package de.zonlykroks.p2p4all.util;
 
-import de.zonlykroks.p2p4all.client.screen.GoleLogScreen;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,7 +58,7 @@ public class GoleExecutor {
                 System.out.println(line);
 
                 if(!line.contains("send:")) {
-                    GoleLogScreen.connectionLog = GoleLogScreen.connectionLog + (line + "\n");
+//                    GoleLogScreen.connectionLog = GoleLogScreen.connectionLog + (line + "\n");
                 }
 
                 if (line.toLowerCase().contains("waiting")) {

@@ -1,0 +1,14 @@
+{
+  "p2p.screen.btn.join": "Join P2P Server",
+  "p2p.screen.btn.create": "Host World",
+  "p2p.screen.create.port_number": "Port Number",
+  "p2p.screen.create.title": "Create a Server",
+  "p2p.screen.create.btn.create": "Create",
+  "p2p.screen.create.no_world_selected": "No World Selected",
+  "p2p.screen.create.world_select": "Select World",
+  "p2p.screen.create.btn.public_private": "Server Access",
+  "p2p.screen.create.btn.public": "Public",
+  "p2p.screen.create.btn.private": "Private",
+  "p2p.screen.create.access_info": "This server is private, and can only be accessed by players on the same internet network through the server list.",
+  "p2p.screen.create.access_info_tunnel": "This server is public - in the sense that it can be accessed by the IP addresses ... i cant explain tcp/udp punching lmfao"
+}

@@ -8,7 +8,14 @@ group = project.maven_group
 
 repositories {
     maven {
-        url = "https://api.modrinth.com/maven"
+        url "https://api.modrinth.com/maven"
+    }
+    maven {
+        name 'Gegy'
+        url 'https://maven.gegy.dev'
+    }
+    maven {
+        url "https://maven.isxander.dev/releases"
     }
 }
 
@@ -21,7 +28,10 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    // Todo, replace with YACL.
     modImplementation(include ("maven.modrinth:midnightlib:1.5.3-fabric"))
+
+    include modImplementation("dev.isxander.yacl:yet-another-config-lib-fabric:${project.yacl_version}")
 }
 
 processResources {

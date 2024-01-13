@@ -1,6 +1,5 @@
 package de.zonlykroks.p2p4all.util;
 
-import de.zonlykroks.p2p4all.client.screen.P2PConnectionScreen;
 import de.zonlykroks.p2p4all.config.P2PConfig;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -46,7 +45,7 @@ public class GoleDownloader {
         }
 
         if(Files.list(Path.of(FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/")).findAny().isPresent()) {
-            MinecraftClient.getInstance().setScreen(new P2PConnectionScreen(parent,isServer));
+//            MinecraftClient.getInstance().setScreen(new P2PConnectionScreen(parent,isServer));
             return;
         }
 
@@ -57,7 +56,7 @@ public class GoleDownloader {
             default -> throw new RuntimeException("Could not download gole, check internet connection!");
         }
 
-        MinecraftClient.getInstance().setScreen(new P2PConnectionScreen(parent,isServer));
+//        MinecraftClient.getInstance().setScreen(new P2PConnectionScreen(parent,isServer));
     }
 
     private void download(String link, String fileName) throws Throwable
