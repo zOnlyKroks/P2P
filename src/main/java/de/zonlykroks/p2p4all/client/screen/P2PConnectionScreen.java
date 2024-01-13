@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Random;
 
 public class P2PConnectionScreen extends Screen {
 
@@ -39,21 +40,36 @@ public class P2PConnectionScreen extends Screen {
 
         String encodedIP = Base64.getEncoder().encodeToString(getPublicIP().getBytes(StandardCharsets.UTF_8));
 
-        EditBoxWidget ipEditWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0,200,20,Text.literal("Your ID: " + encodedIP), Text.literal("Your ID: " + encodedIP));
+        ButtonWidget ipEditWidget = ButtonWidget.builder(Text.literal("Your ID: " + encodedIP), button -> {
+            if (!java.awt.GraphicsEnvironment.isHeadless()) {
+                StringSelection stringSelection = new StringSelection(encodedIP);
+
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+
+                clipboard.setContents(stringSelection, null);
+            }
+        }).width(200).build();
         adder.add(ipEditWidget);
-        ipEditWidget.setText("Your ID: " + encodedIP);
         
         EditBoxWidget targetIpWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal("Target ID"), Text.empty());
         adder.add(targetIpWidget);
         targetIpWidget.setText(P2PConfig.TARGET_IP);
 
-        EditBoxWidget passwordWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal(" Target ID (must match on both sides, unique for each client!)"), Text.empty());
-        adder.add(passwordWidget);
-        passwordWidget.setText(P2PConfig.password);
+        EditBoxWidget connectionID = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal("Connection ID (must match on both sides, unique for each client!)"), Text.empty());
+
+        ButtonWidget randomizeConnectionID = ButtonWidget.builder(Text.literal("Randomize Connection ID"), button -> {
+            Random random = new Random();
+            connectionID.setText(random.nextInt(20000) + "");
+        }).width(200).build();
+
+        adder.add(randomizeConnectionID);
+
+        adder.add(connectionID);
+        connectionID.setText(P2PConfig.password);
 
         adder.add(ButtonWidget.builder(ScreenTexts.DONE, button -> {
             P2PConfig.TARGET_IP = targetIpWidget.getText();
-            P2PConfig.password = passwordWidget.getText();
+            P2PConfig.password = connectionID.getText();
             P2PConfig.areYouTheServer = this.isServer;
             P2PConfig.write("p2p4all");
 
@@ -73,7 +89,7 @@ public class P2PConnectionScreen extends Screen {
 
     private String getPublicIP(){
         try {
-            URL whatismyip = new URL("http://checkip.amazonaws.com");
+            URL whatismyip = new URL("https://v4.ident.me/");
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     whatismyip.openStream()));
 

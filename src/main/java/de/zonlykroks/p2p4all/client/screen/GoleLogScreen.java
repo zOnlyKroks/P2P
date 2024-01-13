@@ -21,12 +21,12 @@ public class GoleLogScreen extends WarningScreen {
     private ButtonWidget buttonWidget;
 
     private final CompletableFuture<Void> future;
-
     public GoleLogScreen(Screen parent, Screen where, CompletableFuture<Void> future) {
         super(Text.literal("Gole Connection Log"), Text.empty(), Text.empty());
         this.parent = parent;
         this.where = where;
         this.future = future;
+        this.didUserCancelOperation = false;
     }
 
     private int timer = 0;
