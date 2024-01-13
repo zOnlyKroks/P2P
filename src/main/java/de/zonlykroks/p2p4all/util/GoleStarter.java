@@ -21,7 +21,7 @@ public class GoleStarter {
     public GoleStarter(Screen parent, Screen where) throws IOException {
         int gamePort = P2PConfig.areYouTheServer ? 25565 : 39332;
 
-        String targetIp = new String(Base64.getDecoder().decode(P2PConfig.TARGET_IP.getBytes(StandardCharsets.UTF_8)));
+        String targetIp = decodeIpAddress(P2PConfig.TARGET_IP);
 
         try {
             InetAddress.getByName(targetIp);
@@ -69,4 +69,17 @@ public class GoleStarter {
         }).start();
     }
 
+    private String decodeIpAddress(String encodedIpAddress) {
+        try {
+            // Decode Base64 to bytes
+            byte[] ipBytes = Base64.getDecoder().decode(encodedIpAddress);
+
+            // Convert bytes to InetAddress and get the IP address
+            InetAddress inetAddress = InetAddress.getByAddress(ipBytes);
+            return inetAddress.getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

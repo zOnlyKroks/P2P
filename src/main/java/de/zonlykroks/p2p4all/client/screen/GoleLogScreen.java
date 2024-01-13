@@ -26,7 +26,6 @@ public class GoleLogScreen extends WarningScreen {
         this.parent = parent;
         this.where = where;
         this.future = future;
-        this.didUserCancelOperation = false;
     }
 
     private int timer = 0;

@@ -16,6 +16,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -38,7 +39,8 @@ public class P2PConnectionScreen extends Screen {
         gridWidget.getMainPositioner().marginX(5).marginBottom(4).alignHorizontalCenter();
         GridWidget.Adder adder = gridWidget.createAdder(2);
 
-        String encodedIP = Base64.getEncoder().encodeToString(getPublicIP().getBytes(StandardCharsets.UTF_8));
+        String ip = getPublicIP();
+        String encodedIP = encodeIpAddress(ip);
 
         ButtonWidget ipEditWidget = ButtonWidget.builder(Text.literal("Your ID: " + encodedIP), button -> {
             if (!java.awt.GraphicsEnvironment.isHeadless()) {
@@ -89,7 +91,7 @@ public class P2PConnectionScreen extends Screen {
 
     private String getPublicIP(){
         try {
-            URL whatismyip = new URL("https://v4.ident.me/");
+            URL whatismyip = new URL("http://checkip.amazonaws.com");
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     whatismyip.openStream()));
 
@@ -97,6 +99,19 @@ public class P2PConnectionScreen extends Screen {
         }catch (Exception e) {
             e.printStackTrace();
             return "127.0.0.1";
+        }
+    }
+
+    private String encodeIpAddress(String ipAddress) {
+        try {
+            // Convert the IP address to bytes
+            byte[] ipBytes = InetAddress.getByName(ipAddress).getAddress();
+
+            // Encode the bytes to Base64
+            return Base64.getEncoder().encodeToString(ipBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
