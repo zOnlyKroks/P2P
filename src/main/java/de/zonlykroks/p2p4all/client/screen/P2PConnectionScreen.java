@@ -43,12 +43,8 @@ public class P2PConnectionScreen extends Screen {
         String encodedIP = encodeIpAddress(ip);
 
         ButtonWidget ipEditWidget = ButtonWidget.builder(Text.literal("Your ID: " + encodedIP), button -> {
-            if (!java.awt.GraphicsEnvironment.isHeadless()) {
-                StringSelection stringSelection = new StringSelection(encodedIP);
-
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-
-                clipboard.setContents(stringSelection, null);
+            if(this.client != null) {
+                this.client.keyboard.setClipboard(encodedIP);
             }
         }).width(200).build();
         adder.add(ipEditWidget);
