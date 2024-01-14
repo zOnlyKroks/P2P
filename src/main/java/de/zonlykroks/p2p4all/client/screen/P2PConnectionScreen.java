@@ -54,28 +54,31 @@ public class P2PConnectionScreen extends Screen {
             System.out.println(destIp);
             Tunnel tunnel = new Tunnel(40000, destIp, this.isServer);
             P2P4AllClient.TUNNEL = tunnel;
-            Thread runTunnel = new Thread(() -> {
+
+            if (this.isServer) {
+                new Thread(() -> {
+                    try {
+                        tunnel.start();
+                        tunnel.createLocalTunnel();
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                        System.out.println("failed to setup connection");
+                    }
+                }).start();
+            } else {
                 try {
                     tunnel.start();
+                    new Thread(tunnel::createLocalTunnel).start();
+                    System.out.println("trying to connect through tunnel localhost:40001");
+                    ServerAddress addr = new ServerAddress("localhost", 40001);
+                    ServerInfo info = new ServerInfo("P2P", "localhost:40001", ServerInfo.ServerType.LAN);
+                    ConnectScreen.connect(this, MinecraftClient.getInstance(), addr, info, false);
+
                 } catch (SocketException e) {
                     e.printStackTrace();
                     System.out.println("failed to setup connection");
+
                 }
-            });
-            runTunnel.start();
-            if (this.isServer) {
-                MinecraftClient.getInstance().setScreen(null);
-            } else {
-                // client needs to wait for tunnel to exist
-                try {
-                    runTunnel.join();
-                } catch (InterruptedException e) {
-                    System.out.println("minecraft hates multithreading apparently");
-                }
-                System.out.println("trying to connect through tunnel localhost:40001");
-                ServerAddress addr = new ServerAddress("localhost", 40001);
-                ServerInfo info = new ServerInfo("P2P", "localhost:40001", ServerInfo.ServerType.LAN);
-                ConnectScreen.connect(this, MinecraftClient.getInstance(), addr, info, false);
             }
 
         }).width(100).build(), 2, adder.copyPositioner().marginTop(6));

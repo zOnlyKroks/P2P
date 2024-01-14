@@ -12,6 +12,7 @@ public class Tunnel {
     private final InetSocketAddress target;
     private final boolean isServer;
     private Socket remote;
+    private Socket local = new Socket();
 
     public Tunnel(int sourcePort, String dest, boolean isServer) {
         this.sourcePort = sourcePort;
@@ -70,11 +71,7 @@ public class Tunnel {
             throw new SocketException("failed to setup tunnel");
         }
 
-        System.out.println("making local tunnel");
-        Socket local = getLocalTunnel();
-        System.out.println("got local tunnel");
-
-        if (local == null) {
+        if (!local.isConnected()) {
             System.out.println("failed to setup local tunnel, aborting");
             throw new SocketException("failed to setup local tunnel");
         }
@@ -92,28 +89,25 @@ public class Tunnel {
 
     }
 
-    private Socket getLocalTunnel() {
-
+    public void createLocalTunnel() {
+        System.out.println("setting up local tunnel");
         if (this.isServer) {
-            // do NOT use try with resources here!
             try {
-                return new Socket("localhost", 25565);
+                local.connect(new InetSocketAddress(25565));
             } catch (Exception e) {
                 System.out.println("failed to connect local tunnel to LAN server: " + e.getMessage());
-                return null;
             }
         } else {
             // or here!
             try {
                 ServerSocket localServer = new ServerSocket(sourcePort + 1);
-                Socket client = localServer.accept();
+                this.local = localServer.accept();
                 localServer.close();
-                return client;
             } catch (IOException e) {
                 System.out.println("failed to setup local tunnel: " + e.getMessage());
-                return null;
             }
         }
+        System.out.println("local tunnel established");
     }
 
     private static class Forwarder extends Thread {
