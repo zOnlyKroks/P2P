@@ -15,7 +15,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.WorldIcon;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -34,7 +33,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class CreateScreen extends LogginScreen {
     private final Screen parent;
-    private TextFieldWidget portNumber;
+    private PortFieldWidget portNumber;
     private ButtonWidget createServerButton;
     private LevelSummary selectedWorld;
     private CompletableFuture<List<LevelSummary>> levelsFuture = null;
@@ -81,9 +80,8 @@ public class CreateScreen extends LogginScreen {
     protected void init() {
         int startX = this.width / 2 - 50;
 
-        if(this.portNumber == null || portNumber.getText() == null || portNumber.getText().isEmpty()) {
-            this.portNumber = new TextFieldWidget(this.client.textRenderer, startX + 5, 10+this.textRenderer.fontHeight+20, 200, 20, Text.translatable("p2p.screen.create.port_number"));
-        }
+        this.portNumber = new PortFieldWidget(this.client.textRenderer, startX + 5, 10+this.textRenderer.fontHeight+20, 200, 20, Text.translatable("p2p.screen.create.port_number"));
+
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
 
@@ -123,6 +121,13 @@ public class CreateScreen extends LogginScreen {
         }).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 + 25 + 25 + 25 + 10, 200, 20).build());
     }
 
+
+    @Override
+    public void tick() {
+        super.tick();
+        this.createServerButton.active = this.portNumber.isFullPort();
+    }
+
     private void handleWorldIcon() {
         if(Files.exists(selectedWorld.getIconPath())) {
             this.worldIcon = Optional.of(WorldIcon.forWorld(this.client.getTextureManager(), this.selectedWorld.getName()));
@@ -139,9 +144,6 @@ public class CreateScreen extends LogginScreen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         int startX = this.width / 2 - 50;
-
-        // validate inputs here:
-        createServerButton.active = !portNumber.getText().isEmpty();
 
         this.renderBackground(context, mouseX, mouseY, delta);
 

@@ -63,8 +63,8 @@ public class ConnectionStateScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        int x = client.getWindow().getScaledWidth() / 40;
-        AtomicInteger y = new AtomicInteger(client.getWindow().getScaledHeight() / 10);
+        int x = width / 40;
+        AtomicInteger y = new AtomicInteger(height / 10);
         parent.ipToStateMap.forEach((ip, connectionProgress) -> {
             context.drawText(client.textRenderer, ip, x, y.get(), 0xFFFFFF, false);
             connectionProgress.tryIncrementIndex();
@@ -75,8 +75,8 @@ public class ConnectionStateScreen extends Screen {
                 client.textRenderer,
                 Text.translatable(ESTABLISHED_CONNECTION, establishedConnections),
                 //TODO: Uhm this works, but why?
-                client.getWindow().getScaledWidth() / 2 - client.textRenderer.getWidth(ESTABLISHED_CONNECTION) / 6,
-                this.height / 2 - 40,
+                width / 2 - client.textRenderer.getWidth(ESTABLISHED_CONNECTION) / 6,
+                80 + textRenderer.fontHeight,
                 0x00FF00,
                 false
         );

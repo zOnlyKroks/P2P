@@ -1,6 +1,5 @@
 package de.zonlykroks.p2p4all.client.screen;
 
-import de.zonlykroks.p2p4all.util.ConnectionProgress;
 import de.zonlykroks.p2p4all.util.GoleDownloader;
 import de.zonlykroks.p2p4all.util.GoleStarter;
 import de.zonlykroks.p2p4all.util.LogginScreen;
@@ -13,7 +12,8 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
 public class JoinScreen extends LogginScreen {
-
+    private static final Text PORT = Text.translatable("p2p.button.title.port");
+    private static final Text IP = Text.translatable("p2p.button.title.ip");
     private final Screen parent;
 
     protected JoinScreen(Screen parent) {
@@ -47,5 +47,25 @@ public class JoinScreen extends LogginScreen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+        int x = this.width / 2 - 100;
+        context.drawText(
+                client.textRenderer,
+                IP,
+                //TODO: Uhm this works, but why?
+                x,
+                20 + textRenderer.fontHeight,
+                0xFFFFFF,
+                false
+        );
+
+        context.drawText(
+                client.textRenderer,
+                PORT,
+                //TODO: Uhm this works, but why?
+                x,
+                60 + textRenderer.fontHeight,
+                0xFFFFFF,
+                false
+        );
     }
 }

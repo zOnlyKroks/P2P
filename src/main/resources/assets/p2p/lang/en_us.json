@@ -1,4 +1,6 @@
 {
+  "p2p.button.title.ip": "IP",
+  "p2p.button.title.port": "Port",
   "p2p.screen.button.start_world": "Start World",
   "p2p.screen.button.cancel_connection": "Cancel",
   "p2p.screen.established_connections": "%d connections",
