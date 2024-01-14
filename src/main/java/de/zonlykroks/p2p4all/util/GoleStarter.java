@@ -73,7 +73,7 @@ public class GoleStarter {
                     return;
                 }
 
-                if(!future.isCancelled()) {
+                if(parent.ipToStateMap.get(targetIp) != ConnectionProgress.FAILED) {
                     if (!areWeTheServer) {
                         System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
                         P2P4AllClient.SERVER_CONNECT_ADDRESS = "127.0.0.1:" + gamePort;
