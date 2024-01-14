@@ -6,7 +6,6 @@ import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
-import dev.isxander.yacl3.impl.controller.BooleanControllerBuilderImpl;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -49,7 +48,7 @@ public class P2PYACLConfig {
 
     public static YetAnotherConfigLib getInstance() {
         return YetAnotherConfigLib.create(HANDLER, (P2PYACLConfig defaults, P2PYACLConfig config, YetAnotherConfigLib.Builder builder) -> {
-            var supportedBiomesOption = ListOption.<String>createBuilder()
+            var ips = ListOption.<String>createBuilder()
                     .name(Text.translatable("p2p4all.config.ips"))
                     .description(OptionDescription.of(Text.translatable("p2p4all.config.ips.description")))
                     .controller(StringControllerBuilder::create)
@@ -76,7 +75,7 @@ public class P2PYACLConfig {
                     .category(ConfigCategory.createBuilder()
                             .name(Text.translatable("p2p4all.config.title"))
                             .options(List.of(verboseLogging,golePath))
-                            .group(supportedBiomesOption)
+                            .group(ips)
                             .build());
         });
 
