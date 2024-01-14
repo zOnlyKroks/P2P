@@ -23,6 +23,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.level.storage.LevelSummary;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
@@ -114,6 +117,8 @@ public class CreateScreen extends LogginScreen {
         this.addDrawableChild(ButtonWidget.builder(Text.translatable("p2p.screen.config_button"), button -> {
             MinecraftClient.getInstance().setScreen(P2PYACLConfig.getInstance().generateScreen(this));
         }).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 + 25 + 25 + 5, 200, 20).build());
+
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Your IP: " + getPublicIP()), button -> this.client.keyboard.setClipboard(getPublicIP())).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 +25 + 25 + 5 + 20 + 10, 200, 20).build());
     }
 
     private void handleWorldIcon() {
@@ -181,5 +186,17 @@ public class CreateScreen extends LogginScreen {
         }
 
         context.drawTextWrapped(textRenderer, tunnelText, startX + 5, 10+this.textRenderer.fontHeight+15 + 20, 200, 0xFFFFFF);
+    }
+
+    private String getPublicIP() {
+        try {
+            URL ip = new URL(P2PYACLConfig.get().ipPingService);
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    ip.openStream()));
+
+            return in.readLine();
+        }catch (Exception e) {
+            return "x.x.x.x";
+        }
     }
 }

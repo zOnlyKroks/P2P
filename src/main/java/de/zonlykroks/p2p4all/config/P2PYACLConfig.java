@@ -21,6 +21,9 @@ public class P2PYACLConfig {
     public String golePath = "";
 
     @SerialEntry
+    public String ipPingService = "http://v4.ident.me/";
+
+    @SerialEntry
     public boolean verboseLogging = false;
 
     @SerialEntry
@@ -75,6 +78,13 @@ public class P2PYACLConfig {
                     .binding(defaults.golePath, () -> config.golePath, (v) -> config.golePath = v)
                     .build();
 
+            var ipPingService = Option.<String>createBuilder()
+                    .name(Text.translatable("p2p4all.config.ipPingService"))
+                    .description(OptionDescription.of(Text.translatable("p2p4all.config.ipPingService.description")))
+                    .controller(StringControllerBuilder::create)
+                    .binding(defaults.ipPingService, () -> config.ipPingService, (v) -> config.ipPingService = v)
+                    .build();
+
             var verboseLogging = Option.<Boolean>createBuilder()
                     .name(Text.translatable("p2p4all.config.verbose"))
                     .description(OptionDescription.of(Text.translatable("p2p4all.config.verbose.description")))
@@ -86,7 +96,7 @@ public class P2PYACLConfig {
                     .title(Text.translatable("p2p4all.config.title"))
                     .category(ConfigCategory.createBuilder()
                             .name(Text.translatable("p2p4all.config.title"))
-                            .options(List.of(verboseLogging,golePath))
+                            .options(List.of(verboseLogging,golePath, ipPingService))
                             .group(ips)
                             .group(savedToPort)
                             .build());

@@ -1,5 +1,6 @@
 package de.zonlykroks.p2p4all.client.screen;
 
+import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.util.GoleDownloader;
 import de.zonlykroks.p2p4all.util.GoleStarter;
 import de.zonlykroks.p2p4all.util.LogginScreen;
@@ -16,6 +17,10 @@ import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 public class JoinScreen extends LogginScreen {
     private static final Text PORT = Text.translatable("p2p.button.title.port");
@@ -54,11 +59,17 @@ public class JoinScreen extends LogginScreen {
                     }
                 }, info));
             }));
-        }).dimensions(this.width / 2 - 155, 120, 150, 20).build());
+        }).dimensions(this.width / 2 - 155, 120, 200, 20).build());
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (button) -> {
             this.client.setScreen(this.parent);
-        }).dimensions(this.width / 2 - 155 + 160,  120, 150, 20).build());
+        }).dimensions(this.width / 2 - 155 + 160,  120, 200, 20).build());
+
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Your IP: " + getPublicIP()), button -> this.client.keyboard.setClipboard(getPublicIP())).dimensions(
+                (this.width / 2) - MinecraftClient.getInstance().textRenderer.getWidth("Your IP: " + getPublicIP()),
+                120 + textRenderer.fontHeight + 20 + 10,
+                200,
+                20).build());
     }
 
     @Override
@@ -84,5 +95,17 @@ public class JoinScreen extends LogginScreen {
                 0xFFFFFF,
                 false
         );
+    }
+
+    private String getPublicIP() {
+        try {
+            URL ip = new URL(P2PYACLConfig.get().ipPingService);
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    ip.openStream()));
+
+            return in.readLine();
+        }catch (Exception e) {
+            return "x.x.x.x";
+        }
     }
 }
