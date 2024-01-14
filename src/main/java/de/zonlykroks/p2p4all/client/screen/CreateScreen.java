@@ -33,7 +33,6 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class CreateScreen extends LogginScreen {
     private final Screen parent;
-    private PortFieldWidget portNumber;
     private ButtonWidget createServerButton;
     private LevelSummary selectedWorld;
     private CompletableFuture<List<LevelSummary>> levelsFuture = null;
@@ -60,8 +59,7 @@ public class CreateScreen extends LogginScreen {
 
         if(shouldTunnel) {
             for (int i = 0; i < P2PYACLConfig.get().savedIPs.size(); i++) {
-                int port = Integer.parseInt(this.portNumber.getText()) + i;
-                GoleStarter goleStarter = new GoleStarter(this,P2PYACLConfig.get().savedIPs.get(i), Integer.toString(port), true);
+                GoleStarter goleStarter = new GoleStarter(this,P2PYACLConfig.get().savedIPs.get(i), P2PYACLConfig.get().savedToPort.get(i), true);
                 goleStarter.start();
             }
         }
@@ -79,8 +77,6 @@ public class CreateScreen extends LogginScreen {
     @Override
     protected void init() {
         int startX = this.width / 2 - 50;
-
-        this.portNumber = new PortFieldWidget(this.client.textRenderer, startX + 5, 10+this.textRenderer.fontHeight+20, 200, 20, Text.translatable("p2p.screen.create.port_number"));
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
 
@@ -102,7 +98,6 @@ public class CreateScreen extends LogginScreen {
             }));
         });
 
-        this.addDrawableChild(portNumber);
         this.addDrawableChild(createServerButton);
 
         this.addDrawableChild(CyclingButtonWidget.<Boolean>builder(optVal -> {
@@ -111,20 +106,13 @@ public class CreateScreen extends LogginScreen {
             } else {
                 return Text.translatable("p2p.screen.create.btn.private").formatted(Formatting.RED);
             }
-        }).values(true, false).initially(false).build(startX + 5, 10+this.textRenderer.fontHeight+20 + 25, 200, 20, Text.translatable("p2p.screen.create.btn.public_private"), (button, value) -> {
+        }).values(true, false).initially(false).build(startX + 5, 10+this.textRenderer.fontHeight+10, 200, 20, Text.translatable("p2p.screen.create.btn.public_private"), (button, value) -> {
             this.shouldTunnel = value;
         }));
 
         this.addDrawableChild(ButtonWidget.builder(Text.translatable("p2p.screen.config_button"), button -> {
             MinecraftClient.getInstance().setScreen(P2PYACLConfig.getInstance().generateScreen(this));
-        }).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 + 25 + 25 + 25 + 10, 200, 20).build());
-    }
-
-
-    @Override
-    public void tick() {
-        super.tick();
-        this.createServerButton.active = this.portNumber.isFullPort();
+        }).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 + 25 + 25 + 5, 200, 20).build());
     }
 
     private void handleWorldIcon() {
@@ -186,13 +174,11 @@ public class CreateScreen extends LogginScreen {
 
         context.drawCenteredTextWithShadow(textRenderer, this.title, this.width / 2, 10, 0xFFFFFF);
 
-        context.drawText(textRenderer, Text.translatable("p2p.screen.create.port_number"), startX + 5, 10+this.textRenderer.fontHeight+10, 0x777777, true);
-
         Text tunnelText = Text.translatable("p2p.screen.create.access_info");
         if(shouldTunnel) {
             tunnelText = Text.translatable("p2p.screen.create.access_info_tunnel");
         }
 
-        context.drawTextWrapped(textRenderer, tunnelText, startX + 5, 10+this.textRenderer.fontHeight+20 + 50, 200, 0xFFFFFF);
+        context.drawTextWrapped(textRenderer, tunnelText, startX + 5, 10+this.textRenderer.fontHeight+15 + 20, 200, 0xFFFFFF);
     }
 }

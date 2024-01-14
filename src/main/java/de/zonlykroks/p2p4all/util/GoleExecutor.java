@@ -17,7 +17,7 @@ public class GoleExecutor {
 
     private static final ExecutorService e = Executors.newCachedThreadPool();
 
-    public static CompletableFuture<Void> execute(LogginScreen parent, File g, String protocol, String addr2, int port1, int port2, boolean areWeTheServer, int gamePort) throws IOException {
+    public static CompletableFuture<Void> execute(LogginScreen parent, File g,String addr2, int port1, int port2, boolean areWeTheServer, int gamePort) throws IOException {
         CompletableFuture<Void> future = new CompletableFuture<>();
         ProcessBuilder builder = new ProcessBuilder();
 
@@ -34,11 +34,8 @@ public class GoleExecutor {
 
         String mode = areWeTheServer ? "server" : "client";
 
-        if (protocol.equals("udp")) {
-            builder.command(g.getAbsolutePath(), "-v", "udp", addr1 + ":" + port1, addr2 + ":" + port2, "-op", mode, "-fwd=127.0.0.1:" + gamePort);
-        } else {
-            builder.command(g.getAbsolutePath(), "-v", "udp", addr1 + ":" + port1, addr2 + ":" + port2, "-op", mode, "-fwd=127.0.0.1:" + gamePort, "-proto=kcp");
-        }
+        builder.command(g.getAbsolutePath(), "-v", "udp", addr1 + ":" + port1, addr2 + ":" + port2, "-op", mode, "-fwd=127.0.0.1:" + gamePort, "-proto=kcp");
+
         System.out.println(String.join(" ", builder.command()));
         builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
         Process p = builder.start();
@@ -63,19 +60,18 @@ public class GoleExecutor {
                     System.out.println(line);
                 }
 
-                if(!line.contains("send:") && !line.contains("waiting")) {
-                    parent.ipToStateMap.replace(addr2,ConnectionProgress.PUNCHING);
+                if(!line.contains("send:") && !line.contains("wait")) {
+                    parent.ipToStateMap.put(addr2,ConnectionProgress.PUNCHING);
                 }
 
-                if (line.toLowerCase().contains("waiting")) {
-                    parent.ipToStateMap.replace(addr2,ConnectionProgress.SUCCESS);
+                if (line.toLowerCase().contains("wait") || line.toLowerCase().contains("tunnel created")) {
+                    parent.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
                     future.complete(null);
                 }
                 try {
                     line = br.readLine();
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    parent.ipToStateMap.replace(addr2,ConnectionProgress.FAILED);
                     future.completeExceptionally(ex);
                     return;
                 }

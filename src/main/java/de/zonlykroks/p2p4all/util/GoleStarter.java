@@ -50,11 +50,11 @@ public class GoleStarter {
                     return;
                 }
 
-                int port = password.isEmpty() ? 25566 : Integer.parseInt(password);
+                int port = Integer.parseInt(password);
                 int port1 = areWeTheServer ? port + 1 : port;
                 int port2 = areWeTheServer ? port : port + 1;
 
-                CompletableFuture<Void> future = GoleExecutor.execute(parent,new File(P2PYACLConfig.HANDLER.instance().golePath), "tcp", targetIp, port1, port2, areWeTheServer, gamePort);
+                CompletableFuture<Void> future = GoleExecutor.execute(parent,new File(P2PYACLConfig.HANDLER.instance().golePath), targetIp, port1, port2, areWeTheServer, gamePort);
                 P2P4AllClient.currentlyRunningTunnels.put(targetIp,future);
 
                 long wait = System.currentTimeMillis() + (150000);
@@ -69,20 +69,11 @@ public class GoleStarter {
                     return;
                 }
 
-                if(parent.ipToStateMap.get(targetIp) != ConnectionProgress.FAILED) {
+                if(parent.ipToStateMap.get(targetIp) == ConnectionProgress.SUCCESS) {
                     if (!areWeTheServer) {
                         System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
                         P2P4AllClient.SERVER_CONNECT_ADDRESS = "127.0.0.1:" + gamePort;
                         parent.ipToStateMap.put(targetIp,ConnectionProgress.SUCCESS);
-                        MinecraftClient.getInstance().execute(() -> {
-                            ServerInfo info = new ServerInfo("P2P", P2P4AllClient.SERVER_CONNECT_ADDRESS, ServerInfo.ServerType.OTHER);
-
-                            MinecraftClient.getInstance().setScreen(new DirectConnectScreen(this.parent, b -> {
-                                if(b) {
-                                    ConnectScreen.connect(this.parent, MinecraftClient.getInstance(), ServerAddress.parse(targetIp), info, false);
-                                }
-                            }, info));
-                        });
                     } else {
                         System.out.println("Connection established!\nWaiting for the player to join");
                         parent.ipToStateMap.put(targetIp,ConnectionProgress.SUCCESS);

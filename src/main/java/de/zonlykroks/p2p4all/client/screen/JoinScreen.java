@@ -29,8 +29,6 @@ public class JoinScreen extends LogginScreen {
 
     @Override
     protected void init() {
-        super.init();
-
         IpFieldWidget ipFieldWidget = new IpFieldWidget(MinecraftClient.getInstance().textRenderer, (this.width / 2) - 100,40, 200,20, Text.translatable("p2p.btn.join.ip.preview"));
 
         PortFieldWidget portWidget = new PortFieldWidget(MinecraftClient.getInstance().textRenderer, (this.width / 2) - 100,80,200,20, Text.translatable("p2p.btn.join.port.preview"));
@@ -46,7 +44,7 @@ public class JoinScreen extends LogginScreen {
             GoleStarter goleStarter = new GoleStarter(this, ip,portWidget.getText(),false);
             goleStarter.start();
 
-            ServerInfo info = new ServerInfo("P2P", "127.0.0.1:", ServerInfo.ServerType.OTHER);
+            ServerInfo info = new ServerInfo("P2P", "127.0.0.1:39332", ServerInfo.ServerType.OTHER);
 
             MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this, () -> {
                 MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {

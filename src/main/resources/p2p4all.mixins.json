@@ -8,6 +8,7 @@
     "ui.ImageRenderManagerMixin"
   ],
   "client": [
+    "DirectConnectScreenMixin",
     "GameMenuScreenMixin",
     "IntegratedServerMixin",
     "MinecraftClientMixin",

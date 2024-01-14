@@ -27,6 +27,10 @@ public class P2PYACLConfig {
     public List<String> savedIPs = List.of(
     );
 
+    @SerialEntry
+    public List<String> savedToPort = List.of(
+    );
+
     public static final ConfigClassHandler<P2PYACLConfig> HANDLER = ConfigClassHandler.createBuilder(P2PYACLConfig.class)
             .id(new Identifier("p2p4all", "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
@@ -56,6 +60,14 @@ public class P2PYACLConfig {
                     .binding(defaults.savedIPs, () -> config.savedIPs, (v) -> config.savedIPs = v)
                     .build();
 
+            var savedToPort = ListOption.<String>createBuilder()
+                    .name(Text.translatable("p2p4all.config.portip"))
+                    .description(OptionDescription.of(Text.translatable("p2p4all.config.portip.description")))
+                    .controller(StringControllerBuilder::create)
+                    .initial("5000")
+                    .binding(defaults.savedToPort, () -> config.savedToPort, (v) -> config.savedToPort = v)
+                    .build();
+
             var golePath = Option.<String>createBuilder()
                     .name(Text.translatable("p2p4all.config.golePath"))
                     .description(OptionDescription.of(Text.translatable("p2p4all.config.golePath.description")))
@@ -76,6 +88,7 @@ public class P2PYACLConfig {
                             .name(Text.translatable("p2p4all.config.title"))
                             .options(List.of(verboseLogging,golePath))
                             .group(ips)
+                            .group(savedToPort)
                             .build());
         });
 

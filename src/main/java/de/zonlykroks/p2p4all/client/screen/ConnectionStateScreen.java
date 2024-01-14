@@ -20,7 +20,7 @@ public class ConnectionStateScreen extends Screen {
     private final long screenOpenTimeMillis;
 
     private ButtonWidget startWorldButton;
-    private long establishedConnections, failedConnections = 0;
+    private long establishedConnections = 0;
 
     public ConnectionStateScreen(LogginScreen parent, @Nullable Runnable runnable) {
         super(Text.translatable("p2p.test"));
@@ -53,16 +53,10 @@ public class ConnectionStateScreen extends Screen {
 
     @Override
     public void tick() {
-        this.establishedConnections = parent.ipToStateMap.values().stream().filter(connectionProgress -> connectionProgress == ConnectionProgress.SUCCESS).count();
-        this.failedConnections = parent.ipToStateMap.values().stream().filter(connectionProgress -> connectionProgress == ConnectionProgress.FAILED).count();
-
-        if(this.failedConnections + this.establishedConnections == parent.ipToStateMap.size()) {
-            startWorldButton.active = true;
-        }
-
         if(!startWorldButton.active && System.currentTimeMillis() - screenOpenTimeMillis > 10000 && this.establishedConnections > 0) {
             startWorldButton.active = true;
         }
+        this.establishedConnections = parent.ipToStateMap.values().stream().filter(connectionProgress -> connectionProgress == ConnectionProgress.SUCCESS).count();
     }
 
     @Override
