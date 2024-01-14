@@ -1,26 +1,21 @@
 package de.zonlykroks.p2p4all.client.screen;
 
-import de.zonlykroks.p2p4all.config.P2PConfig;
-import de.zonlykroks.p2p4all.util.GoleStarter;
+import de.zonlykroks.p2p4all.client.P2P4AllClient;
+import de.zonlykroks.p2p4all.client.net.Tunnel;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.gui.widget.*;
+import net.minecraft.client.network.ServerAddress;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Random;
 
 public class P2PConnectionScreen extends Screen {
 
@@ -28,7 +23,7 @@ public class P2PConnectionScreen extends Screen {
     private final boolean isServer;
 
     public P2PConnectionScreen(Screen parent, boolean isServer) {
-        super(Text.literal("P2P," + (isServer ? "Server" : "Client") + "version (here be dragons!)"));
+        super(Text.literal("P2P (here be dragons!)"));
         this.parent = parent;
         this.isServer = isServer;
     }
@@ -49,33 +44,26 @@ public class P2PConnectionScreen extends Screen {
         }).width(200).build();
         adder.add(ipEditWidget);
         
-        EditBoxWidget targetIpWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal("Target ID"), Text.empty());
-        adder.add(targetIpWidget);
-        targetIpWidget.setText(P2PConfig.TARGET_IP);
-
-        EditBoxWidget connectionID = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal("Connection ID (must match on both sides, unique for each client!)"), Text.empty());
-
-        ButtonWidget randomizeConnectionID = ButtonWidget.builder(Text.literal("Randomize Connection ID"), button -> {
-            Random random = new Random();
-            connectionID.setText(random.nextInt(20000) + "");
-        }).width(200).build();
-
-        adder.add(randomizeConnectionID);
-
-        adder.add(connectionID);
-        connectionID.setText(P2PConfig.password);
+        EditBoxWidget targetIdWidget = new EditBoxWidget(MinecraftClient.getInstance().textRenderer, 0,0, 200,20, Text.literal("Target ID"), Text.empty());
+        adder.add(targetIdWidget);
 
         adder.add(ButtonWidget.builder(ScreenTexts.DONE, button -> {
-            P2PConfig.TARGET_IP = targetIpWidget.getText();
-            P2PConfig.password = connectionID.getText();
-            P2PConfig.areYouTheServer = this.isServer;
-            P2PConfig.write("p2p4all");
 
-            try {
-                new GoleStarter(this.parent, isServer ? new OpenToLanScreen(this.parent) : new MultiplayerScreen(this.parent));
-            } catch (IOException e) {
-                e.printStackTrace();
+            String destIp = new String(Base64.getDecoder().decode(targetIdWidget.getText()));
+            System.out.println(destIp);
+            Tunnel tunnel = new Tunnel(this.isServer ? 40001 : 40000, destIp);
+            P2P4AllClient.TUNNEL = tunnel;
+
+            if (this.isServer) {
+                new Thread(tunnel::startAsServer).start();
+                MinecraftClient.getInstance().setScreen(null);
+            } else {
+                tunnel.startAsClient();
+                ServerAddress addr = new ServerAddress("localhost", 40001);
+                ServerInfo info = new ServerInfo("P2P", "localhost:40001", ServerInfo.ServerType.LAN);
+                ConnectScreen.connect(this, MinecraftClient.getInstance(), addr, info, false);
             }
+
         }).width(100).build(), 2, adder.copyPositioner().marginTop(6));
 
         adder.add(ButtonWidget.builder(ScreenTexts.CANCEL, button -> MinecraftClient.getInstance().setScreen(this.parent)).width(100).build(),2, adder.copyPositioner().marginTop(6));
@@ -88,9 +76,7 @@ public class P2PConnectionScreen extends Screen {
     private String getPublicIP(){
         try {
             URL whatismyip = new URL("http://checkip.amazonaws.com");
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    whatismyip.openStream()));
-
+            BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
             return in.readLine();
         }catch (Exception e) {
             e.printStackTrace();
@@ -101,10 +87,12 @@ public class P2PConnectionScreen extends Screen {
     private String encodeIpAddress(String ipAddress) {
         try {
             // Convert the IP address to bytes
-            byte[] ipBytes = InetAddress.getByName(ipAddress).getAddress();
+            String ip = InetAddress.getByName(ipAddress).getHostAddress();
+            if (this.isServer) ip += ":40001";
+            else ip += ":40000";
 
             // Encode the bytes to Base64
-            return Base64.getEncoder().encodeToString(ipBytes);
+            return Base64.getEncoder().encodeToString(ip.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
             return null;

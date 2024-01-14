@@ -1,12 +1,11 @@
 package de.zonlykroks.p2p4all.mixin;
 
-import de.zonlykroks.p2p4all.client.screen.GoleWarningScreen;
+import de.zonlykroks.p2p4all.client.screen.P2PConnectionScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,7 +21,7 @@ public abstract class TitleScreenMixin extends Screen {
     @Inject(method = "init", at = @At("TAIL"))
     public void p2p4all$addButton(CallbackInfo ci) {
         ButtonWidget p2pButton = this.addDrawableChild(ButtonWidget.builder(Text.literal("P2P"), button -> {
-            MinecraftClient.getInstance().setScreen(new GoleWarningScreen(this, false));
+            MinecraftClient.getInstance().setScreen(new P2PConnectionScreen(this, false));
         }).width(22).build());
 
         int l = this.height / 4 + 48;
