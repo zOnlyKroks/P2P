@@ -70,26 +70,9 @@ public class Tunnel {
             System.out.println("failed to setup tunnel, aborting");
             throw new SocketException("failed to setup tunnel");
         }
-
-        if (!local.isConnected()) {
-            System.out.println("failed to setup local tunnel, aborting");
-            throw new SocketException("failed to setup local tunnel");
-        }
-
-        try {
-            Thread out = new Forwarder(local.getOutputStream(), this.remote.getInputStream());
-            Thread in  = new Forwarder(this.remote.getOutputStream(), local.getInputStream());
-
-            out.start();
-            in.start();
-        } catch (IOException e) {
-            System.out.println("stream forwarding failed: " + e.getMessage());
-        }
-
-
     }
 
-    public void createLocalTunnel() {
+    public void createLocalTunnel() throws SocketException {
         System.out.println("setting up local tunnel");
         if (this.isServer) {
             try {
@@ -107,6 +90,22 @@ public class Tunnel {
                 System.out.println("failed to setup local tunnel: " + e.getMessage());
             }
         }
+
+        if (!local.isConnected()) {
+            System.out.println("failed to setup tunnel, aborting");
+            throw new SocketException("failed to setup tunnel");
+        }
+
+        try {
+            Thread out = new Forwarder(local.getOutputStream(), this.remote.getInputStream());
+            Thread in  = new Forwarder(this.remote.getOutputStream(), local.getInputStream());
+
+            out.start();
+            in.start();
+        } catch (IOException e) {
+            System.out.println("stream forwarding failed: " + e.getMessage());
+        }
+
         System.out.println("local tunnel established");
     }
 

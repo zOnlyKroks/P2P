@@ -68,7 +68,14 @@ public class P2PConnectionScreen extends Screen {
             } else {
                 try {
                     tunnel.start();
-                    new Thread(tunnel::createLocalTunnel).start();
+                    new Thread(() -> {
+                        try {
+                            tunnel.createLocalTunnel();
+                        } catch (SocketException e) {
+                            e.printStackTrace();
+                            System.out.println("failed to set up local proxy");
+                        }
+                    }).start();
                     System.out.println("trying to connect through tunnel localhost:40001");
                     ServerAddress addr = new ServerAddress("localhost", 40001);
                     ServerInfo info = new ServerInfo("P2P", "localhost:40001", ServerInfo.ServerType.LAN);
