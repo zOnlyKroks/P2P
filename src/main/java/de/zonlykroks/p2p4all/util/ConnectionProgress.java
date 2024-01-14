@@ -13,7 +13,7 @@ public enum ConnectionProgress {
 
     private final int width;
     private final int height;
-    private List<Identifier> ids;
+    private final List<Identifier> ids;
     private int index = 0;
     private long lastUpdate;
 

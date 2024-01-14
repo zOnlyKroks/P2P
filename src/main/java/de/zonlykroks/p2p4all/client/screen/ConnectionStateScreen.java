@@ -2,10 +2,12 @@ package de.zonlykroks.p2p4all.client.screen;
 
 import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.util.ConnectionProgress;
+import de.zonlykroks.p2p4all.util.LogginScreen;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,25 +15,23 @@ public class ConnectionStateScreen extends Screen {
     private static final Text START_WORLD = Text.translatable("p2p.screen.button.start_world");
     private static final Text CANCEL_CONNECTION = Text.translatable("p2p.screen.button.cancel_connection");
     private static final String ESTABLISHED_CONNECTION = "p2p.screen.established_connections";
-    private final CreateScreen parent;
-    private final Runnable startWorld;
+    private final LogginScreen parent;
+    private final Runnable runnable;
     private final long screenOpenTimeMillis;
 
     private ButtonWidget startWorldButton;
-    private long establishedConnections = 0;
+    private long establishedConnections, failedConnections = 0;
 
-    public ConnectionStateScreen(CreateScreen parent, Runnable startWorld) {
+    public ConnectionStateScreen(LogginScreen parent, @Nullable Runnable runnable) {
         super(Text.translatable("p2p.test"));
         this.parent = parent;
-        this.startWorld = startWorld;
+        this.runnable = runnable;
         this.screenOpenTimeMillis = System.currentTimeMillis();
     }
 
     @Override
     protected void init() {
-        startWorldButton = ButtonWidget.builder(START_WORLD, (buttonWidget) -> {
-                    startWorld.run();
-                })
+        startWorldButton = ButtonWidget.builder(START_WORLD, (buttonWidget) -> runnable.run())
                 .dimensions((this.width - this.textRenderer.getWidth(START_WORLD)) / 2, 100, this.textRenderer.getWidth(START_WORLD) + 10, 20)
                 .build();
         startWorldButton.active = false;
@@ -53,11 +53,16 @@ public class ConnectionStateScreen extends Screen {
 
     @Override
     public void tick() {
-        if(!startWorldButton.active && System.currentTimeMillis() - screenOpenTimeMillis > 10000 && this.establishedConnections > 0) {
+        this.establishedConnections = parent.ipToStateMap.values().stream().filter(connectionProgress -> connectionProgress == ConnectionProgress.SUCCESS).count();
+        this.failedConnections = parent.ipToStateMap.values().stream().filter(connectionProgress -> connectionProgress == ConnectionProgress.FAILED).count();
+
+        if(this.failedConnections + this.establishedConnections == parent.ipToStateMap.size()) {
             startWorldButton.active = true;
         }
 
-        this.establishedConnections = parent.ipToStateMap.values().stream().filter(connectionProgress -> connectionProgress == ConnectionProgress.SUCCESS).count();
+        if(!startWorldButton.active && System.currentTimeMillis() - screenOpenTimeMillis > 10000 && this.establishedConnections > 0) {
+            startWorldButton.active = true;
+        }
     }
 
     @Override

@@ -82,7 +82,6 @@ public class CreateScreen extends LogginScreen {
 
         this.portNumber = new PortFieldWidget(this.client.textRenderer, startX + 5, 10+this.textRenderer.fontHeight+20, 200, 20, Text.translatable("p2p.screen.create.port_number"));
 
-
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
 
         this.createServerButton = ButtonWidget.builder(Text.translatable("p2p.screen.create.btn.create"), (btn) -> handleCreation()).dimensions(this.width - this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) - 15, 5, this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) + 10, 20).build();

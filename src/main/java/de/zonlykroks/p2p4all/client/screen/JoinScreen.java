@@ -5,8 +5,15 @@ import de.zonlykroks.p2p4all.util.GoleStarter;
 import de.zonlykroks.p2p4all.util.LogginScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.GameMenuScreen;
+import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
+import net.minecraft.client.gui.screen.multiplayer.DirectConnectScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.network.ServerAddress;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -32,10 +39,22 @@ public class JoinScreen extends LogginScreen {
         this.addDrawableChild(portWidget);
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.PROCEED, (button) -> {
-            String ip = ipFieldWidget.getText();
             new GoleDownloader();
+
+            String ip = ipFieldWidget.getText();
+
             GoleStarter goleStarter = new GoleStarter(this, ip,portWidget.getText(),false);
             goleStarter.start();
+
+            ServerInfo info = new ServerInfo("P2P", "127.0.0.1:", ServerInfo.ServerType.OTHER);
+
+            MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this, () -> {
+                MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {
+                    if(b) {
+                        ConnectScreen.connect(this, this.client, ServerAddress.parse(info.address), info, false);
+                    }
+                }, info));
+            }));
         }).dimensions(this.width / 2 - 155, 120, 150, 20).build());
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (button) -> {

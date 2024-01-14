@@ -32,11 +32,6 @@ public class PortFieldWidget extends TextFieldWidget {
         super(textRenderer, x, y, width, height, copyFrom, text);
     }
 
-    @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.renderWidget(context, mouseX, mouseY, delta);
-    }
-
     public boolean isFullPort() {
         return !this.getText().isBlank() && this.getText().matches("^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$");
     }
