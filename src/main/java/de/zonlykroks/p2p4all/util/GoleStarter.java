@@ -55,7 +55,7 @@ public class GoleStarter {
                 int port2 = areWeTheServer ? port : port + 1;
 
                 CompletableFuture<Void> future = GoleExecutor.execute(parent,new File(P2PYACLConfig.HANDLER.instance().golePath), "tcp", targetIp, port1, port2, areWeTheServer, gamePort);
-                P2P4AllClient.currentlyRunningTunnels.add(future);
+                P2P4AllClient.currentlyRunningTunnels.put(targetIp,future);
 
                 long wait = System.currentTimeMillis() + (150000);
                 while (!future.isDone() && System.currentTimeMillis() <= wait) {

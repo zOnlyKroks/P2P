@@ -29,7 +29,9 @@ public class ConnectionStateScreen extends Screen {
 
     @Override
     protected void init() {
-        startWorldButton = ButtonWidget.builder(START_WORLD, (buttonWidget) -> startWorld.run())
+        startWorldButton = ButtonWidget.builder(START_WORLD, (buttonWidget) -> {
+                    startWorld.run();
+                })
                 .dimensions((this.width - this.textRenderer.getWidth(START_WORLD)) / 2, 100, this.textRenderer.getWidth(START_WORLD) + 10, 20)
                 .build();
         startWorldButton.active = false;
@@ -41,7 +43,8 @@ public class ConnectionStateScreen extends Screen {
         this.addDrawableChild(
                 ButtonWidget.builder(CANCEL_CONNECTION, buttonWidget -> {
                             this.close();
-                            P2P4AllClient.currentlyRunningTunnels.forEach(voidCompletableFuture -> voidCompletableFuture.cancel(true));
+                            P2P4AllClient.currentlyRunningTunnels.values().forEach(voidCompletableFuture -> voidCompletableFuture.cancel(true));
+                            P2P4AllClient.currentlyRunningTunnels.clear();
                         })
                         .dimensions((this.width - this.textRenderer.getWidth(CANCEL_CONNECTION)) / 2, 200, this.textRenderer.getWidth(CANCEL_CONNECTION) + 10, 20)
                         .build()

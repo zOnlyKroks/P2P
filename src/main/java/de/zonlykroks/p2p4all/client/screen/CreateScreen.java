@@ -1,5 +1,6 @@
 package de.zonlykroks.p2p4all.client.screen;
 
+import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.mixin.accessors.ScreenAccessor;
 import de.zonlykroks.p2p4all.util.GoleDownloader;
@@ -51,6 +52,8 @@ public class CreateScreen extends LogginScreen {
     }
 
     public void handleCreation() {
+        P2P4AllClient.currentlyRunningTunnels.values().forEach(voidCompletableFuture -> voidCompletableFuture.cancel(true));
+        P2P4AllClient.currentlyRunningTunnels.clear();
         // Then do your magic here.
         // Will gladly do
 
@@ -81,7 +84,6 @@ public class CreateScreen extends LogginScreen {
         if(this.portNumber == null || portNumber.getText() == null || portNumber.getText().isEmpty()) {
             this.portNumber = new TextFieldWidget(this.client.textRenderer, startX + 5, 10+this.textRenderer.fontHeight+20, 200, 20, Text.translatable("p2p.screen.create.port_number"));
         }
-
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
 
