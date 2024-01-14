@@ -2,6 +2,7 @@ package de.zonlykroks.p2p4all.util;
 
 
 import de.zonlykroks.p2p4all.client.screen.CreateScreen;
+import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -58,7 +59,9 @@ public class GoleExecutor {
             }
             while (line != null) {
                 //IF you want debug output
-                System.out.println(line);
+                if(P2PYACLConfig.get().verboseLogging) {
+                    System.out.println(line);
+                }
 
                 if(!line.contains("send:") && !line.contains("waiting")) {
                     parent.ipToStateMap.replace(addr2,ConnectionProgress.PUNCHING);

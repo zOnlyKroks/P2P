@@ -1,5 +1,6 @@
 package de.zonlykroks.p2p4all.client.screen;
 
+import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.util.ConnectionProgress;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -32,13 +33,16 @@ public class ConnectionStateScreen extends Screen {
                 .dimensions((this.width - this.textRenderer.getWidth(START_WORLD)) / 2, 100, this.textRenderer.getWidth(START_WORLD) + 10, 20)
                 .build();
         startWorldButton.active = false;
+
         this.addDrawableChild(
                 startWorldButton
         );
 
-
         this.addDrawableChild(
-                ButtonWidget.builder(CANCEL_CONNECTION, buttonWidget -> this.close())
+                ButtonWidget.builder(CANCEL_CONNECTION, buttonWidget -> {
+                            this.close();
+                            P2P4AllClient.currentlyRunningTunnels.forEach(voidCompletableFuture -> voidCompletableFuture.cancel(true));
+                        })
                         .dimensions((this.width - this.textRenderer.getWidth(CANCEL_CONNECTION)) / 2, 200, this.textRenderer.getWidth(CANCEL_CONNECTION) + 10, 20)
                         .build()
         );

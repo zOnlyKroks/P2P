@@ -58,12 +58,11 @@ public class CreateScreen extends LogginScreen {
 
         if(shouldTunnel) {
             for (int i = 0; i < P2PYACLConfig.get().savedIPs.size(); i++) {
-                System.out.println("" + (Integer.parseInt(this.portNumber.getText()) + 1));
-                GoleStarter goleStarter = new GoleStarter(this,P2PYACLConfig.get().savedIPs.get(i), "" + (Integer.parseInt(this.portNumber.getText()) + i), true);
+                int port = Integer.parseInt(this.portNumber.getText()) + i;
+                GoleStarter goleStarter = new GoleStarter(this,P2PYACLConfig.get().savedIPs.get(i), Integer.toString(port), true);
                 goleStarter.start();
             }
         }
-
 
         Runnable startWorld = () -> QuickPlay.startQuickPlay(MinecraftClient.getInstance(), new RunArgs.QuickPlay(null,selectedWorld.getName(),"",""), null);
 
@@ -77,8 +76,6 @@ public class CreateScreen extends LogginScreen {
 
     @Override
     protected void init() {
-        super.init();
-
         int startX = this.width / 2 - 50;
 
         if(this.portNumber == null || portNumber.getText() == null || portNumber.getText().isEmpty()) {

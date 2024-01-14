@@ -1,10 +1,12 @@
 package de.zonlykroks.p2p4all.config;
 
 import dev.isxander.yacl3.api.*;
+import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
+import dev.isxander.yacl3.impl.controller.BooleanControllerBuilderImpl;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -18,6 +20,9 @@ public class P2PYACLConfig {
 
     @SerialEntry
     public String golePath = "";
+
+    @SerialEntry
+    public boolean verboseLogging = false;
 
     @SerialEntry
     public List<String> savedIPs = List.of(
@@ -59,11 +64,18 @@ public class P2PYACLConfig {
                     .binding(defaults.golePath, () -> config.golePath, (v) -> config.golePath = v)
                     .build();
 
+            var verboseLogging = Option.<Boolean>createBuilder()
+                    .name(Text.translatable("p2p4all.config.verbose"))
+                    .description(OptionDescription.of(Text.translatable("p2p4all.config.verbose.description")))
+                    .controller(BooleanControllerBuilder::create)
+                    .binding(defaults.verboseLogging, () -> config.verboseLogging, (v) -> config.verboseLogging = v)
+                    .build();
+
             return builder
                     .title(Text.translatable("p2p4all.config.title"))
                     .category(ConfigCategory.createBuilder()
                             .name(Text.translatable("p2p4all.config.title"))
-                            .options(List.of(golePath))
+                            .options(List.of(verboseLogging,golePath))
                             .group(supportedBiomesOption)
                             .build());
         });

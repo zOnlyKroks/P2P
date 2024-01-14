@@ -50,16 +50,12 @@ public class GoleStarter {
                     return;
                 }
 
-                int port = 40_000 + (password.isEmpty() ? 0 : password.hashCode() % 20_000);
+                int port = password.isEmpty() ? 25566 : Integer.parseInt(password);
                 int port1 = areWeTheServer ? port + 1 : port;
                 int port2 = areWeTheServer ? port : port + 1;
 
                 CompletableFuture<Void> future = GoleExecutor.execute(parent,new File(P2PYACLConfig.HANDLER.instance().golePath), "tcp", targetIp, port1, port2, areWeTheServer, gamePort);
-
-                MinecraftClientShutdownEvent.SHUTDOWN.register(() -> {
-                    parent.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
-                    future.cancel(true);
-                });
+                P2P4AllClient.currentlyRunningTunnels.add(future);
 
                 long wait = System.currentTimeMillis() + (150000);
                 while (!future.isDone() && System.currentTimeMillis() <= wait) {
