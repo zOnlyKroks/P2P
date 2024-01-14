@@ -2,7 +2,6 @@ package de.zonlykroks.p2p4all.client.screen;
 
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.mixin.accessors.ScreenAccessor;
-import de.zonlykroks.p2p4all.util.ConnectionProgress;
 import de.zonlykroks.p2p4all.util.GoleDownloader;
 import de.zonlykroks.p2p4all.util.GoleStarter;
 import de.zonlykroks.p2p4all.util.LogginScreen;
@@ -11,8 +10,6 @@ import net.minecraft.client.QuickPlay;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.screen.GameMenuScreen;
-import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.WorldIcon;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -20,7 +17,6 @@ import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.screen.ScreenTexts;
-import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -28,7 +24,8 @@ import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.level.storage.LevelSummary;
 
 import java.nio.file.Files;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static org.lwjgl.opengl.GL20.*;
@@ -67,8 +64,15 @@ public class CreateScreen extends LogginScreen {
             }
         }
 
-        //TODO: Move this after the logs and to when all clients are connected safely
-        QuickPlay.startQuickPlay(MinecraftClient.getInstance(), new RunArgs.QuickPlay(null,selectedWorld.getName(),"",""), null);
+
+        Runnable startWorld = () -> QuickPlay.startQuickPlay(MinecraftClient.getInstance(), new RunArgs.QuickPlay(null,selectedWorld.getName(),"",""), null);
+
+        if(shouldTunnel) {
+            MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this, startWorld));
+        } else {
+            startWorld.run();
+        }
+
     }
 
     @Override
@@ -77,7 +81,10 @@ public class CreateScreen extends LogginScreen {
 
         int startX = this.width / 2 - 50;
 
-        this.portNumber = new TextFieldWidget(this.client.textRenderer, startX + 5, 10+this.textRenderer.fontHeight+20, 200, 20, Text.translatable("p2p.screen.create.port_number"));
+        if(this.portNumber == null || portNumber.getText() == null || portNumber.getText().isEmpty()) {
+            this.portNumber = new TextFieldWidget(this.client.textRenderer, startX + 5, 10+this.textRenderer.fontHeight+20, 200, 20, Text.translatable("p2p.screen.create.port_number"));
+        }
+
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
 
