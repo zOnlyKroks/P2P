@@ -66,6 +66,10 @@ public class GoleExecutor {
 
                 if (line.toLowerCase().contains("wait") || line.toLowerCase().contains("tunnel created")) {
                     parent.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
+                }
+
+                if (line.toLowerCase().contains("wait")) {
+                    parent.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
                     future.complete(null);
                 }
                 try {

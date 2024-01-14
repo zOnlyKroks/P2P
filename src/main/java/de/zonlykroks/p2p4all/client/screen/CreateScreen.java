@@ -50,6 +50,7 @@ public class CreateScreen extends LogginScreen {
     }
 
     public void handleCreation() {
+        ipToStateMap.clear();
         P2P4AllClient.currentlyRunningTunnels.values().forEach(voidCompletableFuture -> voidCompletableFuture.cancel(true));
         P2P4AllClient.currentlyRunningTunnels.clear();
         // Then do your magic here.
