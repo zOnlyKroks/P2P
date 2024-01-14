@@ -1,8 +1,7 @@
 package de.zonlykroks.p2p4all.util;
 
-import de.zonlykroks.p2p4all.config.P2PConfig;
+import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 
 import java.io.*;
@@ -20,7 +19,7 @@ public class GoleDownloader {
 
     private final OSType type;
 
-    public GoleDownloader(Screen parent, boolean isServer) throws Throwable {
+    public GoleDownloader() {
         String os = System.getProperty("os.name").toLowerCase();
         OSType osType = null;
 
@@ -44,19 +43,20 @@ public class GoleDownloader {
             }
         }
 
-        if(Files.list(Path.of(FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/")).findAny().isPresent()) {
-//            MinecraftClient.getInstance().setScreen(new P2PConnectionScreen(parent,isServer));
-            return;
-        }
+        try {
+            if(Files.list(Path.of(FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/")).findAny().isPresent()) {
+                return;
+            }
 
-        switch (Objects.requireNonNull(osType)) {
-            case WINDOWS -> download("https://github.com/shawwwn/Gole/releases/download/v1.2.0/gole-windows-20210217.zip", FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/gole-win");
-            case LINUX -> download("https://github.com/shawwwn/Gole/releases/download/v1.2.0/gole-linux-20210217.zip", FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/gole-linux");
-            case MAC -> download("https://github.com/shawwwn/Gole/releases/download/v1.2.0/gole-darwin-20210217.zip", FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/gole-darwin");
-            default -> throw new RuntimeException("Could not download gole, check internet connection!");
+            switch (Objects.requireNonNull(osType)) {
+                case WINDOWS -> download("https://github.com/shawwwn/Gole/releases/download/v1.2.0/gole-windows-20210217.zip", FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/gole-win");
+                case LINUX -> download("https://github.com/shawwwn/Gole/releases/download/v1.2.0/gole-linux-20210217.zip", FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/gole-linux");
+                case MAC -> download("https://github.com/shawwwn/Gole/releases/download/v1.2.0/gole-darwin-20210217.zip", FabricLoader.getInstance().getConfigDir() + "/p2p4all/gole/gole-darwin");
+                default -> throw new RuntimeException("Could not download gole, check internet connection!");
+            }
+        }catch (Throwable e) {
+            e.printStackTrace();
         }
-
-//        MinecraftClient.getInstance().setScreen(new P2PConnectionScreen(parent,isServer));
     }
 
     private void download(String link, String fileName) throws Throwable
@@ -112,14 +112,15 @@ public class GoleDownloader {
         }
 
         if(this.type == OSType.WINDOWS) {
-            P2PConfig.goleFilePath = extractedFileFolder.getAbsolutePath() + "/gole-windows-amd64.exe";
+            P2PYACLConfig.get().golePath = extractedFileFolder.getAbsolutePath() + "/gole-windows-amd64.exe";
+            P2PYACLConfig.save();
         }else if(this.type == OSType.LINUX) {
-            P2PConfig.goleFilePath = extractedFileFolder.getAbsolutePath() + "/gole-linux-amd64";
+            P2PYACLConfig.get().golePath = extractedFileFolder.getAbsolutePath() + "/gole-linux-amd64";
+            P2PYACLConfig.save();
         }else if(this.type == OSType.MAC) {
-            P2PConfig.goleFilePath = extractedFileFolder.getAbsolutePath() + "/gole-darwin-amd64.exe";
+            P2PYACLConfig.get().golePath = extractedFileFolder.getAbsolutePath() + "/gole-darwin-amd64";
+            P2PYACLConfig.save();
         }
-
-        P2PConfig.write("p2p4all");
     }
 
     public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {

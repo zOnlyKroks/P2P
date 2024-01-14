@@ -1,8 +1,18 @@
 package de.zonlykroks.p2p4all.client.screen;
 
+import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.mixin.accessors.ScreenAccessor;
+import de.zonlykroks.p2p4all.util.ConnectionProgress;
+import de.zonlykroks.p2p4all.util.GoleDownloader;
+import de.zonlykroks.p2p4all.util.GoleStarter;
+import de.zonlykroks.p2p4all.util.LogginScreen;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.QuickPlay;
+import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.screen.GameMenuScreen;
+import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.WorldIcon;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -10,6 +20,7 @@ import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.screen.ScreenTexts;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -17,14 +28,13 @@ import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.level.storage.LevelSummary;
 
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static org.lwjgl.opengl.GL20.*;
 
 
-public class CreateScreen extends Screen {
+public class CreateScreen extends LogginScreen {
     private final Screen parent;
     private TextFieldWidget portNumber;
     private ButtonWidget createServerButton;
@@ -44,14 +54,21 @@ public class CreateScreen extends Screen {
     }
 
     public void handleCreation() {
-        new Thread(() -> {
-            // if not in a world, open it using Quickplay utilities.
-            assert this.client != null;
-            this.client.executeTask(() -> {
-                // QUICKPLAY.openSingleplayerWorld(this.selectedWorld.getName(), ...);
-            });
-            // Then do your magic here.
-        }).start();
+        // Then do your magic here.
+        // Will gladly do
+
+        new GoleDownloader();
+
+        if(shouldTunnel) {
+            for (int i = 0; i < P2PYACLConfig.get().savedIPs.size(); i++) {
+                System.out.println("" + (Integer.parseInt(this.portNumber.getText()) + 1));
+                GoleStarter goleStarter = new GoleStarter(this,P2PYACLConfig.get().savedIPs.get(i), "" + (Integer.parseInt(this.portNumber.getText()) + i), true);
+                goleStarter.start();
+            }
+        }
+
+        //TODO: Move this after the logs and to when all clients are connected safely
+        QuickPlay.startQuickPlay(MinecraftClient.getInstance(), new RunArgs.QuickPlay(null,selectedWorld.getName(),"",""), null);
     }
 
     @Override
@@ -64,9 +81,7 @@ public class CreateScreen extends Screen {
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
 
-        this.createServerButton = ButtonWidget.builder(Text.translatable("p2p.screen.create.btn.create"), (btn) -> {
-            handleCreation();
-        }).dimensions(this.width - this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) - 15, 5, this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) + 10, 20).build();
+        this.createServerButton = ButtonWidget.builder(Text.translatable("p2p.screen.create.btn.create"), (btn) -> handleCreation()).dimensions(this.width - this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) - 15, 5, this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) + 10, 20).build();
 
         LevelStorage.LevelList saves = this.client.getLevelStorage().getLevelList();
 
@@ -96,6 +111,10 @@ public class CreateScreen extends Screen {
         }).values(true, false).initially(false).build(startX + 5, 10+this.textRenderer.fontHeight+20 + 25, 200, 20, Text.translatable("p2p.screen.create.btn.public_private"), (button, value) -> {
             this.shouldTunnel = value;
         }));
+
+        this.addDrawableChild(ButtonWidget.builder(Text.translatable("p2p.screen.config_button"), button -> {
+            MinecraftClient.getInstance().setScreen(P2PYACLConfig.getInstance().generateScreen(this));
+        }).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 + 25 + 25 + 25 + 10, 200, 20).build());
     }
 
     private void handleWorldIcon() {
@@ -116,11 +135,7 @@ public class CreateScreen extends Screen {
         int startX = this.width / 2 - 50;
 
         // validate inputs here:
-        if(portNumber.getText().isEmpty()) {
-            createServerButton.active = false;
-        } else {
-            createServerButton.active = true;
-        }
+        createServerButton.active = !portNumber.getText().isEmpty();
 
         this.renderBackground(context, mouseX, mouseY, delta);
 

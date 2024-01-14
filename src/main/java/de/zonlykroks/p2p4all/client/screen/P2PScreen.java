@@ -42,6 +42,8 @@ public class P2PScreen extends Screen {
 
         this.createScreenButton.setClickEvent((btn) -> this.client.setScreen(new CreateScreen(this)));
 
+        this.joinScreenButton.setClickEvent( (btn) -> this.client.setScreen(new JoinScreen(this)));
+
         grid.addChild(this.createScreenButton, 2, 1);
         grid.addChild(this.joinScreenButton, 2, 1);
 

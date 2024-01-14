@@ -1,6 +1,8 @@
 package de.zonlykroks.p2p4all.util;
 
 
+import de.zonlykroks.p2p4all.client.screen.CreateScreen;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +16,7 @@ public class GoleExecutor {
 
     private static final ExecutorService e = Executors.newCachedThreadPool();
 
-    public static CompletableFuture<Void> execute(File g, String protocol, String addr2, int port1, int port2, boolean isClient, int gamePort) throws IOException {
+    public static CompletableFuture<Void> execute(LogginScreen parent, File g, String protocol, String addr2, int port1, int port2, boolean areWeTheServer, int gamePort) throws IOException {
         CompletableFuture<Void> future = new CompletableFuture<>();
         ProcessBuilder builder = new ProcessBuilder();
 
@@ -29,7 +31,7 @@ public class GoleExecutor {
             }
         }
 
-        String mode = isClient ? "client" : "server";
+        String mode = areWeTheServer ? "server" : "client";
 
         if (protocol.equals("udp")) {
             builder.command(g.getAbsolutePath(), "-v", "udp", addr1 + ":" + port1, addr2 + ":" + port2, "-op", mode, "-fwd=127.0.0.1:" + gamePort);
@@ -55,19 +57,22 @@ public class GoleExecutor {
                 return;
             }
             while (line != null) {
+                //IF you want debug output
                 System.out.println(line);
 
-                if(!line.contains("send:")) {
-//                    GoleLogScreen.connectionLog = GoleLogScreen.connectionLog + (line + "\n");
+                if(!line.contains("send:") && !line.contains("waiting")) {
+                    parent.ipToStateMap.replace(addr2,ConnectionProgress.PUNCHING);
                 }
 
                 if (line.toLowerCase().contains("waiting")) {
+                    parent.ipToStateMap.replace(addr2,ConnectionProgress.SUCCESS);
                     future.complete(null);
                 }
                 try {
                     line = br.readLine();
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    parent.ipToStateMap.replace(addr2,ConnectionProgress.FAILED);
                     future.completeExceptionally(ex);
                     return;
                 }

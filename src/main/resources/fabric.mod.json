@@ -16,6 +16,9 @@
   "entrypoints": {
     "client": [
       "de.zonlykroks.p2p4all.client.P2P4AllClient"
+    ],
+    "modmenu": [
+      "de.zonlykroks.p2p4all.compat.ModMenuEntrypoint"
     ]
   },
   "mixins": [
