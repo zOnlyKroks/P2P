@@ -14,6 +14,7 @@ import net.minecraft.text.Text;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.Base64;
 
@@ -49,16 +50,29 @@ public class P2PConnectionScreen extends Screen {
 
         adder.add(ButtonWidget.builder(ScreenTexts.DONE, button -> {
 
-            String destIp = new String(Base64.getDecoder().decode(targetIdWidget.getText()));
+            String destIp = new String(Base64.getDecoder().decode(targetIdWidget.getText().trim()));
             System.out.println(destIp);
-            Tunnel tunnel = new Tunnel(this.isServer ? 40001 : 40000, destIp);
+            Tunnel tunnel = new Tunnel(40000, destIp, this.isServer);
             P2P4AllClient.TUNNEL = tunnel;
-
+            Thread runTunnel = new Thread(() -> {
+                try {
+                    tunnel.start();
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                    System.out.println("failed to setup connection");
+                }
+            });
+            runTunnel.start();
             if (this.isServer) {
-                new Thread(tunnel::startAsServer).start();
                 MinecraftClient.getInstance().setScreen(null);
             } else {
-                tunnel.startAsClient();
+                // client needs to wait for tunnel to exist
+                try {
+                    runTunnel.join();
+                } catch (InterruptedException e) {
+                    System.out.println("minecraft hates multithreading apparently");
+                }
+                System.out.println("trying to connect through tunnel localhost:40001");
                 ServerAddress addr = new ServerAddress("localhost", 40001);
                 ServerInfo info = new ServerInfo("P2P", "localhost:40001", ServerInfo.ServerType.LAN);
                 ConnectScreen.connect(this, MinecraftClient.getInstance(), addr, info, false);
@@ -87,9 +101,7 @@ public class P2PConnectionScreen extends Screen {
     private String encodeIpAddress(String ipAddress) {
         try {
             // Convert the IP address to bytes
-            String ip = InetAddress.getByName(ipAddress).getHostAddress();
-            if (this.isServer) ip += ":40001";
-            else ip += ":40000";
+            String ip = InetAddress.getByName(ipAddress).getHostAddress() + ":40000";
 
             // Encode the bytes to Base64
             return Base64.getEncoder().encodeToString(ip.getBytes());
