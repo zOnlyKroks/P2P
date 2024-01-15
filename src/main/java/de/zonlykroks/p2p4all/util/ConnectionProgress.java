@@ -29,9 +29,7 @@ public enum ConnectionProgress {
 
     public Identifier getId() {
         if(index >= this.ids.size()) index = 0;
-        var id = this.ids.get(index);
-        //index++;
-        return id;
+        return this.ids.get(index);
     }
 
     public void tryIncrementIndex() {

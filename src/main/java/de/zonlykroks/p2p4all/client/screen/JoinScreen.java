@@ -52,7 +52,7 @@ public class JoinScreen extends Screen {
 
             ServerInfo info = new ServerInfo("P2P", "127.0.0.1:39332", ServerInfo.ServerType.OTHER);
 
-            MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this, () -> {
+            MinecraftClient.getInstance().setScreen(new SingleConnectionStateScreen(this, () -> {
                 MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {
                     if(b) {
                         ConnectScreen.connect(this, this.client, ServerAddress.parse(info.address), info, false);

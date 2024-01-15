@@ -8,20 +8,18 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class ConnectionStateScreen extends Screen {
-    private static final Text START_WORLD = Text.translatable("p2p.screen.button.start_world");
+public class SingleConnectionStateScreen extends Screen {
+    private static final Text JOIN_WORLD = Text.translatable("p2p.screen.button.join_world");
     private static final Text CANCEL_CONNECTION = Text.translatable("p2p.screen.button.cancel_connection");
     private static final String ESTABLISHED_CONNECTION = "p2p.screen.established_connections";
     private final Screen parent;
     private final Runnable runnable;
     private final long screenOpenTimeMillis;
 
-    private ButtonWidget startWorldButton;
+    private ButtonWidget joinWorldButton;
     private long establishedConnections = 0;
 
-    public ConnectionStateScreen(Screen parent, @Nullable Runnable runnable) {
+    public SingleConnectionStateScreen(Screen parent, @Nullable Runnable runnable) {
         super(Text.translatable("p2p.test"));
         this.parent = parent;
         this.runnable = runnable;
@@ -30,13 +28,13 @@ public class ConnectionStateScreen extends Screen {
 
     @Override
     protected void init() {
-        startWorldButton = ButtonWidget.builder(START_WORLD, (buttonWidget) -> runnable.run())
-                .dimensions((this.width - this.textRenderer.getWidth(START_WORLD)) / 2, 100, this.textRenderer.getWidth(START_WORLD) + 10, 20)
+        joinWorldButton = ButtonWidget.builder(JOIN_WORLD, (buttonWidget) -> runnable.run())
+                .dimensions((this.width - this.textRenderer.getWidth(JOIN_WORLD)) / 2, 100, this.textRenderer.getWidth(JOIN_WORLD) + 10, 20)
                 .build();
-        startWorldButton.active = false;
+        joinWorldButton.active = false;
 
         this.addDrawableChild(
-                startWorldButton
+                joinWorldButton
         );
 
         this.addDrawableChild(
@@ -44,15 +42,15 @@ public class ConnectionStateScreen extends Screen {
                             this.close();
                             P2P4AllClient.clearAllTunnels();
                         })
-                        .dimensions((this.width - this.textRenderer.getWidth(CANCEL_CONNECTION)) / 2, 200, this.textRenderer.getWidth(CANCEL_CONNECTION) + 10, 20)
+                        .dimensions((this.width - this.textRenderer.getWidth(CANCEL_CONNECTION)) / 2, 130, this.textRenderer.getWidth(CANCEL_CONNECTION) + 10, 20)
                         .build()
         );
     }
 
     @Override
     public void tick() {
-        if(!startWorldButton.active && System.currentTimeMillis() - screenOpenTimeMillis > 10000 && this.establishedConnections > 0) {
-            startWorldButton.active = true;
+        if(!joinWorldButton.active && System.currentTimeMillis() - screenOpenTimeMillis > 10000 && this.establishedConnections > 0) {
+            joinWorldButton.active = true;
         }
         this.establishedConnections = P2P4AllClient.ipToStateMap.values().stream().filter(connectionProgress -> connectionProgress == ConnectionProgress.SUCCESS).count();
     }
@@ -60,14 +58,15 @@ public class ConnectionStateScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        int x = width / 40;
-        AtomicInteger y = new AtomicInteger(height / 10);
-        P2P4AllClient.ipToStateMap.forEach((ip, connectionProgress) -> {
-            context.drawText(client.textRenderer, ip, x, y.get(), 0xFFFFFF, false);
-            connectionProgress.tryIncrementIndex();
-            context.drawGuiTexture(connectionProgress.getId(), x + 70, y.get(), connectionProgress.getWidth(), connectionProgress.getHeight());
-            y.set(y.get() + 12);
-        });
+
+        var ip = P2P4AllClient.ipToStateMap.keySet().toArray(String[]::new)[0];
+        int x = (width - textRenderer.getWidth(ip)) / 2;
+        final int y = 90;
+        var connectionProgress = P2P4AllClient.ipToStateMap.values().toArray(ConnectionProgress[]::new)[0];
+        context.drawText(client.textRenderer, ip, (width - textRenderer.getWidth(ip)) / 2, y, 0xFFFFFF, false);
+        connectionProgress.tryIncrementIndex();
+        context.drawGuiTexture(connectionProgress.getId(), (width + textRenderer.getWidth(ip)) / 2 + 1, y, connectionProgress.getWidth(), connectionProgress.getHeight());
+        /**
         context.drawText(
                 client.textRenderer,
                 Text.translatable(ESTABLISHED_CONNECTION, establishedConnections),
@@ -76,7 +75,7 @@ public class ConnectionStateScreen extends Screen {
                 80 + textRenderer.fontHeight,
                 0x00FF00,
                 false
-        );
+        );**/
     }
 
     @Override
