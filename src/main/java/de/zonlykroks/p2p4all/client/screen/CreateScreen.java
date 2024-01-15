@@ -29,6 +29,7 @@ import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -66,11 +67,12 @@ public class CreateScreen extends Screen {
             for (int i = 0; i < P2PYACLConfig.get().savedIPs.size(); i++) {
 //                GoleStarter goleStarter = new GoleStarter(P2PYACLConfig.get().savedIPs.get(i), P2PYACLConfig.get().savedToPort.get(i), true);
 //                goleStarter.start();
-                String[] ip = P2PYACLConfig.get().savedIPs.get(i).split(":");
+                String ip = P2PYACLConfig.get().savedIPs.get(i);
+                int port = Integer.parseInt(P2PYACLConfig.get().savedToPort.get(i));
                 Tunnel tunnel = new Tunnel();
                 try {
                     tunnel.init(true);
-                    tunnel.setTarget(ip[0], Integer.parseInt(ip[1]));
+                    tunnel.setTarget(ip, port);
                 } catch (SocketException e) {
                     e.printStackTrace(); //TODO error handling
                 }
