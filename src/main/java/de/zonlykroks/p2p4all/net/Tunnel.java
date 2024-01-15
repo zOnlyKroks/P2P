@@ -58,7 +58,7 @@ public class Tunnel {
         );
     }
 
-    public void connect() throws SocketException {
+    public void connect() {
         for (int i = 0; i < 20; i++) {
             log(Level.DEBUG, "punch attempt {}/{}", i+1, 20);
             P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.PENDING);
@@ -116,7 +116,7 @@ public class Tunnel {
         log(Level.DEBUG, "setting up local tunnel");
         if (this.isServer) {
             try {
-                local.connect(new InetSocketAddress(25564));
+                local.connect(new InetSocketAddress(25565));
             } catch (Exception e) {
                 log(Level.ERROR, "failed to connect local tunnel to LAN server: " + e.getMessage());
             }
@@ -126,7 +126,7 @@ public class Tunnel {
                 ServerSocket localServer = new ServerSocket();
                 for (int i = 0; i < 20; i++) {
                     try {
-                        localServer.bind(new InetSocketAddress(sourcePort + i));
+                        localServer.bind(new InetSocketAddress(25565));
                     } catch (IOException ignored) {}
                 }
                 if (!localServer.isBound()) {

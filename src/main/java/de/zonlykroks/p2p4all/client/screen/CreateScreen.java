@@ -3,6 +3,7 @@ package de.zonlykroks.p2p4all.client.screen;
 import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.mixin.accessors.ScreenAccessor;
+import de.zonlykroks.p2p4all.net.Tunnel;
 import de.zonlykroks.p2p4all.util.GoleDownloader;
 import de.zonlykroks.p2p4all.util.GoleStarter;
 import net.minecraft.client.MinecraftClient;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.storage.LevelSummary;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
@@ -56,13 +58,27 @@ public class CreateScreen extends Screen {
         P2P4AllClient.clearAllTunnels();
         // Then do your magic here.
         // Will gladly do
+        //hehe its my magic now
 
-        new GoleDownloader();
+//        new GoleDownloader();
 
         if(shouldTunnel) {
             for (int i = 0; i < P2PYACLConfig.get().savedIPs.size(); i++) {
-                GoleStarter goleStarter = new GoleStarter(P2PYACLConfig.get().savedIPs.get(i), P2PYACLConfig.get().savedToPort.get(i), true);
-                goleStarter.start();
+//                GoleStarter goleStarter = new GoleStarter(P2PYACLConfig.get().savedIPs.get(i), P2PYACLConfig.get().savedToPort.get(i), true);
+//                goleStarter.start();
+                String[] ip = P2PYACLConfig.get().savedIPs.get(i).split(":");
+                Tunnel tunnel = new Tunnel();
+                try {
+                    tunnel.init(true);
+                    tunnel.setTarget(ip[0], Integer.parseInt(ip[1]));
+                } catch (SocketException e) {
+                    e.printStackTrace(); //TODO error handling
+                }
+
+                new Thread(() -> {
+                    tunnel.connect();
+                    tunnel.createLocalTunnel();
+                }).start();
             }
         }
 
@@ -116,7 +132,10 @@ public class CreateScreen extends Screen {
             MinecraftClient.getInstance().setScreen(P2PYACLConfig.getInstance().generateScreen(this));
         }).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 + 25 + 25 + 5, 200, 20).build());
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Your IP: " + getPublicIP()), button -> this.client.keyboard.setClipboard(getPublicIP())).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 +25 + 25 + 5 + 20 + 10, 200, 20).build());
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Your IP: " + getPublicIP()),
+                button -> this.client.keyboard.setClipboard(getPublicIP())
+        ).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 +25 + 25 + 5 + 20 + 10, 200, 20).build());
     }
 
     private void handleWorldIcon() {

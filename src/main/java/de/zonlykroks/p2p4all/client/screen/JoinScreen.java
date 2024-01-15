@@ -61,12 +61,8 @@ public class JoinScreen extends Screen {
             P2P4AllClient.currentlyRunningTunnels.put(ip + ":" + port, t);
 
             new Thread(() -> {
-                try {
-                    t.connect();
-                    t.createLocalTunnel();
-                } catch (SocketException e) {
-                    e.printStackTrace(); //TODO error handling
-                }
+                t.connect();
+                t.createLocalTunnel();
             }).start();
 
             MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this, () -> {
