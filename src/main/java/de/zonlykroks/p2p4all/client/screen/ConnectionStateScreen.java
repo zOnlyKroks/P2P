@@ -65,7 +65,7 @@ public class ConnectionStateScreen extends Screen {
         P2P4AllClient.ipToStateMap.forEach((ip, connectionProgress) -> {
             context.drawText(client.textRenderer, ip, x, y.get(), 0xFFFFFF, false);
             connectionProgress.tryIncrementIndex();
-            context.drawGuiTexture(connectionProgress.getId(), x + 60, y.get(), connectionProgress.getWidth(), connectionProgress.getHeight());
+            context.drawGuiTexture(connectionProgress.getId(), x + 70, y.get(), connectionProgress.getWidth(), connectionProgress.getHeight());
             y.set(y.get() + 12);
         });
         context.drawText(
