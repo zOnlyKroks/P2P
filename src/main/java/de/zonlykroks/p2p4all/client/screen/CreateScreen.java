@@ -27,9 +27,12 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -40,6 +43,8 @@ public class CreateScreen extends Screen {
     private CompletableFuture<List<LevelSummary>> levelsFuture = null;
     private Optional<WorldIcon> worldIcon;
     private boolean shouldTunnel = false;
+
+    private ButtonWidget createButton;
 
     public CreateScreen(Screen parent) {
         super(Text.translatable("p2p.screen.create.title"));
@@ -77,12 +82,21 @@ public class CreateScreen extends Screen {
     }
 
     @Override
+    public void tick() {
+        boolean ipSizeMatchPortSize = P2PYACLConfig.get().savedIPs.size() == P2PYACLConfig.get().savedToPort.size();
+
+        boolean doublePorts = P2PYACLConfig.get().savedToPort.stream().anyMatch(i -> Collections.frequency(P2PYACLConfig.get().savedToPort, i) > 1);
+
+        this.createButton.active = ipSizeMatchPortSize && !doublePorts;
+    }
+
+    @Override
     protected void init() {
         int startX = this.width / 2 - 50;
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
 
-        ButtonWidget createServerButton = ButtonWidget.builder(Text.translatable("p2p.screen.create.btn.create"), (btn) -> handleCreation()).dimensions(this.width - this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) - 15, 5, this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) + 10, 20).build();
+        this.createButton = ButtonWidget.builder(Text.translatable("p2p.screen.create.btn.create"), (btn) -> handleCreation()).dimensions(this.width - this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) - 15, 5, this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) + 10, 20).build();
 
         LevelStorage.LevelList saves = this.client.getLevelStorage().getLevelList();
 
@@ -100,7 +114,7 @@ public class CreateScreen extends Screen {
             }));
         });
 
-        this.addDrawableChild(createServerButton);
+        this.addDrawableChild(this.createButton);
 
         this.addDrawableChild(CyclingButtonWidget.<Boolean>builder(optVal -> {
             if(optVal) {
