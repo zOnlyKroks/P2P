@@ -2,8 +2,7 @@ package de.zonlykroks.p2p4all.client.screen;
 
 import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
-import de.zonlykroks.p2p4all.util.GoleDownloader;
-import de.zonlykroks.p2p4all.util.GoleStarter;
+import de.zonlykroks.p2p4all.net.Tunnel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -18,6 +17,7 @@ import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.SocketException;
 import java.net.URL;
 
 public class JoinScreen extends Screen {
@@ -35,24 +35,42 @@ public class JoinScreen extends Screen {
         P2P4AllClient.ipToStateMap.clear();
         P2P4AllClient.clearAllTunnels();
 
-        IpFieldWidget ipFieldWidget = new IpFieldWidget(MinecraftClient.getInstance().textRenderer, (this.width / 2) - 100,40, 200,20, Text.translatable("p2p.btn.join.ip.preview"));
+        Tunnel tunnel = new Tunnel();
+        try {
+            tunnel.init(false);
+        } catch (SocketException e) {
+            e.printStackTrace();
+            //TODO this is a fatal error, whats the clean way to abort here?
+        }
+        String localAddr = getPublicIP() + ":" + tunnel.getLocalPort();
+        // dont hate me, this is cause java lambdas are kinda stupid
+        P2P4AllClient.currentlyRunningTunnels.put("initializing", tunnel);
 
+        IpFieldWidget ipFieldWidget = new IpFieldWidget(MinecraftClient.getInstance().textRenderer, (this.width / 2) - 100,40, 200,20, Text.translatable("p2p.btn.join.ip.preview"));
         PortFieldWidget portWidget = new PortFieldWidget(MinecraftClient.getInstance().textRenderer, (this.width / 2) - 100,80,200,20, Text.translatable("p2p.btn.join.port.preview"));
 
         this.addDrawableChild(ipFieldWidget);
         this.addDrawableChild(portWidget);
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.PROCEED, (button) -> {
-            new GoleDownloader();
-
             String ip = ipFieldWidget.getText();
+            int port = Integer.parseInt(portWidget.getText());
 
-            GoleStarter goleStarter = new GoleStarter(ip,portWidget.getText(),false);
-            goleStarter.start();
+            Tunnel t = P2P4AllClient.currentlyRunningTunnels.remove("initializing");
+            t.setTarget(ip, port);
+            P2P4AllClient.currentlyRunningTunnels.put(ip + ":" + port, t);
 
-            ServerInfo info = new ServerInfo("P2P", "127.0.0.1:39332", ServerInfo.ServerType.OTHER);
+            new Thread(() -> {
+                try {
+                    t.connect();
+                    t.createLocalTunnel();
+                } catch (SocketException e) {
+                    e.printStackTrace(); //TODO error handling
+                }
+            }).start();
 
             MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this, () -> {
+                ServerInfo info = new ServerInfo("P2P", "localhost:25564", ServerInfo.ServerType.OTHER);
                 MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {
                     if(b) {
                         ConnectScreen.connect(this, this.client, ServerAddress.parse(info.address), info, false);
@@ -65,8 +83,10 @@ public class JoinScreen extends Screen {
             this.client.setScreen(this.parent);
         }).dimensions(this.width / 2 - 155 + 160,  120, 200, 20).build());
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Your IP: " + getPublicIP()), button -> this.client.keyboard.setClipboard(getPublicIP())).dimensions(
-                (this.width / 2) - MinecraftClient.getInstance().textRenderer.getWidth("Your IP: " + getPublicIP()),
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Your IP: " + localAddr), button -> {
+            this.client.keyboard.setClipboard(localAddr);
+        }).dimensions(
+                (this.width / 2) - MinecraftClient.getInstance().textRenderer.getWidth("Your IP: " + localAddr),
                 120 + textRenderer.fontHeight + 20 + 10,
                 200,
                 20).build());

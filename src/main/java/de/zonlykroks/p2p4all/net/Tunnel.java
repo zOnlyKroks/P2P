@@ -1,6 +1,8 @@
 package de.zonlykroks.p2p4all.net;
 
 import de.zonlykroks.p2p4all.client.P2P4AllClient;
+import de.zonlykroks.p2p4all.util.ConnectionProgress;
+import org.slf4j.event.Level;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -9,6 +11,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 public class Tunnel {
+    private int sourcePort;
     private InetSocketAddress target;
     private boolean isServer;
     private Socket remote;
@@ -17,88 +20,105 @@ public class Tunnel {
     private Forwarder in;
     private Forwarder out;
 
-    /*public Tunnel(String dest, boolean isServer) {
+    public void init(boolean isServer) throws SocketException {
+
         this.isServer = isServer;
 
-        String[] targetParts = dest.split(":");
-        P2P4AllClient.LOGGER.debug(Arrays.toString(targetParts));
-        this.target = new InetSocketAddress(targetParts[0], Integer.parseInt(targetParts[1]));
-    }*/
-
-    private Tunnel() {} // use Tunnel.init() below
-
-    public static Tunnel init(boolean isServer, String targetAddress) throws SocketException {
-        Tunnel tunnel = new Tunnel();
-        tunnel.isServer = isServer;
-
-        String[] target = targetAddress.split(":");
-        tunnel.target = new InetSocketAddress(target[0], Integer.parseInt(target[1]));
-
-        tunnel.remote = new Socket();
-        tunnel.remote.setReuseAddress(true);
+        this.remote = new Socket();
+        this.remote.setReuseAddress(true);
 
         for (int i = 0; i < 20; i++) {
             try {
-                tunnel.remote.bind(new InetSocketAddress(40000 + i));
+                this.remote.bind(new InetSocketAddress(40000 + i));
             } catch (Exception ignored) {}
         }
 
-        if (!tunnel.remote.isBound()) {
+        if (!this.remote.isBound()) {
             throw new SocketException("failed to find local port to bind to");
+        } else {
+            this.sourcePort = this.remote.getLocalPort();
+            try { this.remote.close(); } catch (IOException e) {
+                System.err.println("could not unbind unconnected port. this should not happen.");
+            }
         }
+    }
 
-        return tunnel;
+    public int getLocalPort() {
+        return sourcePort;
+    }
+
+    public void setTarget(String targetIp, int targetPort) {
+        this.target = new InetSocketAddress(targetIp, targetPort);
+    }
+
+    private void log(Level level, String msg, Object... items) {
+        P2P4AllClient.LOGGER.atLevel(level).log(
+                target == null  ? msg : "[" + target.getHostString() + "] " + msg,
+                items
+        );
     }
 
     public void connect() throws SocketException {
         for (int i = 0; i < 20; i++) {
-            P2P4AllClient.LOGGER.debug("punch attempt {}/{}", i+1, 20);
+            log(Level.DEBUG, "punch attempt {}/{}", i+1, 20);
+            P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.PENDING);
+
             try {
                 this.remote = new Socket();
                 this.remote.setReuseAddress(true);
+                this.remote.bind(new InetSocketAddress(sourcePort));
                 this.remote.connect(target, isServer ? 2200 : 1800);
-                P2P4AllClient.LOGGER.debug("connection established as client!");
+                log(Level.INFO, "connection tunnel established as client!");
                 break;
             } catch (IOException e) {
-                P2P4AllClient.LOGGER.debug("IOEx punch clientside bind: " + e.getMessage());
+                if (!e.getMessage().contains("timed out")) log(Level.WARN, "IOEx punch clientside bind: " + e.getMessage());
                 try {
                     this.remote.close();
                     this.remote = null;
                 } catch (IOException ex) {
-                    P2P4AllClient.LOGGER.debug("IOEx punch clientside close: " + e.getMessage());
+                    log(Level.DEBUG, "IOEx punch clientside close: " + e.getMessage());
                 }
             }
 
             try (ServerSocket s = new ServerSocket()) {
                 s.setReuseAddress(true);
+                s.bind(new InetSocketAddress(sourcePort));
                 s.setSoTimeout(isServer ? 3000 : 2500);
                 this.remote = s.accept();
-                P2P4AllClient.LOGGER.debug("connection established as server!");
+                log(Level.DEBUG, "connection tunnel established as server!");
                 break;
             } catch (IOException e) {
-                P2P4AllClient.LOGGER.debug("IOEx punch serverside bind: " + e.getMessage());
+                if (!e.getMessage().contains("timed out")) log(Level.WARN, "IOEx punch serverside bind: " + e.getMessage());
                 try {
                     if (this.remote != null) this.remote.close();
                     this.remote = null;
                 } catch (IOException ex) {
-                    P2P4AllClient.LOGGER.debug("IOEx punch serverside close: " + ex.getMessage());
+                    log(Level.DEBUG, "IOEx punch serverside close: " + ex.getMessage());
                 }
             }
         }
 
         if (this.remote == null) {
-            P2P4AllClient.LOGGER.debug("failed to setup tunnel, aborting");
-            throw new SocketException("failed to setup tunnel");
+            log(Level.ERROR, "failed to setup tunnel, aborting");
+            P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.FAILED);
+        } else {
+            P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.SUCCESS);
         }
     }
 
-    public void createLocalTunnel() throws SocketException {
-        P2P4AllClient.LOGGER.debug("setting up local tunnel");
+    public void createLocalTunnel() {
+        if (this.remote == null) {
+            log(Level.ERROR, "tried to create local tunnel without existing remote tunnel");
+            P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.FAILED);
+            return;
+        }
+
+        log(Level.DEBUG, "setting up local tunnel");
         if (this.isServer) {
             try {
-                local.connect(new InetSocketAddress(25565));
+                local.connect(new InetSocketAddress(25564));
             } catch (Exception e) {
-                P2P4AllClient.LOGGER.debug("failed to connect local tunnel to LAN server: " + e.getMessage());
+                log(Level.ERROR, "failed to connect local tunnel to LAN server: " + e.getMessage());
             }
         } else {
             // or here!
@@ -106,21 +126,26 @@ public class Tunnel {
                 ServerSocket localServer = new ServerSocket();
                 for (int i = 0; i < 20; i++) {
                     try {
-                        localServer.bind(new InetSocketAddress(remote.getLocalPort() + i));
+                        localServer.bind(new InetSocketAddress(sourcePort + i));
                     } catch (IOException ignored) {}
                 }
-                if (!localServer.isBound()) throw new SocketException("failed to find port for local proxy");
+                if (!localServer.isBound()) {
+                    log(Level.ERROR, "failed to find port for local proxy");
+                    P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.FAILED);
+                    return;
+                }
 
                 this.local = localServer.accept();
                 localServer.close();
             } catch (IOException e) {
-                P2P4AllClient.LOGGER.debug("failed to setup local tunnel: " + e.getMessage());
+                log(Level.ERROR, "failed to setup local tunnel: " + e.getMessage());
             }
         }
 
         if (!local.isConnected()) {
-            P2P4AllClient.LOGGER.error("failed to setup tunnel, aborting");
-            throw new SocketException("failed to setup tunnel");
+            log(Level.ERROR, "failed to setup tunnel, aborting");
+            P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.FAILED);
+            return;
         }
 
         try {
@@ -129,21 +154,22 @@ public class Tunnel {
             in.start();
             out.start();
         } catch (IOException e) {
-            P2P4AllClient.LOGGER.warn("stream forwarding failed to start: " + e.getMessage());
+            log(Level.ERROR, "stream forwarding failed to start: " + e.getMessage());
         }
 
-        P2P4AllClient.LOGGER.debug("local tunnel established");
+        log(Level.INFO, "local tunnel established");
+        P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.SUCCESS);
     }
 
     public void close() {
         try {
-            this.in.isShuttingDown = true;
-            this.out.isShuttingDown = true;
-            if (!this.local.isClosed()) this.local.close();
-            if (!this.remote.isClosed()) this.remote.close();
+            if (this.in != null) this.in.isShuttingDown = true;
+            if (this.out != null) this.out.isShuttingDown = true;
+            if (this.local != null && !this.local.isClosed()) this.local.close();
+            if (this.remote != null && !this.remote.isClosed()) this.remote.close();
 
         } catch (IOException e) {
-            P2P4AllClient.LOGGER.warn("did not shut down tunnel sockets correctly, ports might be unusable for a few minutes");
+            log(Level.WARN, "did not shut down tunnel sockets correctly, ports might be unusable for a few minutes");
         }
     }
 }
