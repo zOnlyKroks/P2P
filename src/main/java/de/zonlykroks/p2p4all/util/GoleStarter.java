@@ -27,17 +27,14 @@ public class GoleStarter {
 
     private final String targetIp;
 
-    private final LogginScreen parent;
-
-    public GoleStarter(LogginScreen parent,String targetIP,String password, boolean areWeTheServer){
+    public GoleStarter(String targetIP,String password, boolean areWeTheServer){
         this.password = password;
         this.areWeTheServer = areWeTheServer;
         this.targetIp = targetIP;
-        this.parent = parent;
     }
 
     public void start(){
-        parent.ipToStateMap.put(targetIp,ConnectionProgress.PENDING);
+        P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.PENDING);
         new Thread(() -> {
             try {
                 int gamePort = areWeTheServer ? 25565 : 39332;
@@ -46,7 +43,7 @@ public class GoleStarter {
                     InetAddress.getByName(targetIp);
                 } catch (Exception ex) {
                     System.out.println("Couldn't parse IP address \"" + targetIp + "\"");
-                    parent.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
+                    P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
                     return;
                 }
 
@@ -54,7 +51,7 @@ public class GoleStarter {
                 int port1 = areWeTheServer ? port + 1 : port;
                 int port2 = areWeTheServer ? port : port + 1;
 
-                CompletableFuture<Void> future = GoleExecutor.execute(parent,new File(P2PYACLConfig.HANDLER.instance().golePath), targetIp, port1, port2, areWeTheServer, gamePort);
+                CompletableFuture<Void> future = GoleExecutor.execute(new File(P2PYACLConfig.HANDLER.instance().golePath), targetIp, port1, port2, areWeTheServer, gamePort);
                 P2P4AllClient.currentlyRunningTunnels.put(targetIp,future);
 
                 long wait = System.currentTimeMillis() + (150000);
@@ -65,18 +62,18 @@ public class GoleStarter {
                 if (!future.isDone()) {
                     future.cancel(true);
                     System.out.println("Failed to connect after 2 minutes and 30 seconds");
-                    parent.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
+                    P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
                     return;
                 }
 
-                if(parent.ipToStateMap.get(targetIp) == ConnectionProgress.SUCCESS) {
+                if(P2P4AllClient.ipToStateMap.get(targetIp) == ConnectionProgress.SUCCESS) {
                     if (!areWeTheServer) {
                         System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
                         P2P4AllClient.SERVER_CONNECT_ADDRESS = "127.0.0.1:" + gamePort;
-                        parent.ipToStateMap.put(targetIp,ConnectionProgress.SUCCESS);
+                        P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.SUCCESS);
                     } else {
                         System.out.println("Connection established!\nWaiting for the player to join");
-                        parent.ipToStateMap.put(targetIp,ConnectionProgress.SUCCESS);
+                        P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.SUCCESS);
                     }
                 }
             }catch (Exception e) {

@@ -5,7 +5,6 @@ import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.mixin.accessors.ScreenAccessor;
 import de.zonlykroks.p2p4all.util.GoleDownloader;
 import de.zonlykroks.p2p4all.util.GoleStarter;
-import de.zonlykroks.p2p4all.util.LogginScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.QuickPlay;
 import net.minecraft.client.RunArgs;
@@ -25,6 +24,7 @@ import net.minecraft.world.level.storage.LevelSummary;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
@@ -34,9 +34,8 @@ import java.util.concurrent.CompletableFuture;
 import static org.lwjgl.opengl.GL20.*;
 
 
-public class CreateScreen extends LogginScreen {
+public class CreateScreen extends Screen {
     private final Screen parent;
-    private ButtonWidget createServerButton;
     private LevelSummary selectedWorld;
     private CompletableFuture<List<LevelSummary>> levelsFuture = null;
     private Optional<WorldIcon> worldIcon;
@@ -53,9 +52,8 @@ public class CreateScreen extends LogginScreen {
     }
 
     public void handleCreation() {
-        ipToStateMap.clear();
-        P2P4AllClient.currentlyRunningTunnels.values().forEach(voidCompletableFuture -> voidCompletableFuture.cancel(true));
-        P2P4AllClient.currentlyRunningTunnels.clear();
+        P2P4AllClient.ipToStateMap.clear();
+        P2P4AllClient.clearAllTunnels();
         // Then do your magic here.
         // Will gladly do
 
@@ -63,7 +61,7 @@ public class CreateScreen extends LogginScreen {
 
         if(shouldTunnel) {
             for (int i = 0; i < P2PYACLConfig.get().savedIPs.size(); i++) {
-                GoleStarter goleStarter = new GoleStarter(this,P2PYACLConfig.get().savedIPs.get(i), P2PYACLConfig.get().savedToPort.get(i), true);
+                GoleStarter goleStarter = new GoleStarter(P2PYACLConfig.get().savedIPs.get(i), P2PYACLConfig.get().savedToPort.get(i), true);
                 goleStarter.start();
             }
         }
@@ -71,7 +69,7 @@ public class CreateScreen extends LogginScreen {
         Runnable startWorld = () -> QuickPlay.startQuickPlay(MinecraftClient.getInstance(), new RunArgs.QuickPlay(null,selectedWorld.getName(),"",""), null);
 
         if(shouldTunnel) {
-            MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this, startWorld));
+            MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this,startWorld));
         } else {
             startWorld.run();
         }
@@ -84,7 +82,7 @@ public class CreateScreen extends LogginScreen {
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
 
-        this.createServerButton = ButtonWidget.builder(Text.translatable("p2p.screen.create.btn.create"), (btn) -> handleCreation()).dimensions(this.width - this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) - 15, 5, this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) + 10, 20).build();
+        ButtonWidget createServerButton = ButtonWidget.builder(Text.translatable("p2p.screen.create.btn.create"), (btn) -> handleCreation()).dimensions(this.width - this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) - 15, 5, this.textRenderer.getWidth(Text.translatable("p2p.screen.create.btn.create")) + 10, 20).build();
 
         LevelStorage.LevelList saves = this.client.getLevelStorage().getLevelList();
 
@@ -190,7 +188,7 @@ public class CreateScreen extends LogginScreen {
 
     private String getPublicIP() {
         try {
-            URL ip = new URL(P2PYACLConfig.get().ipPingService);
+            URL ip = new URI(P2PYACLConfig.get().ipPingService).toURL();
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     ip.openStream()));
 

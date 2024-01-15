@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,7 +68,7 @@ public class GoleDownloader {
         Map< String, List< String >> header = http.getHeaderFields();
         while( isRedirected( header )) {
             link = header.get( "Location" ).get( 0 );
-            url    = new URL( link );
+            url    = new URI(link).toURL();
             http   = (HttpURLConnection)url.openConnection();
             header = http.getHeaderFields();
         }

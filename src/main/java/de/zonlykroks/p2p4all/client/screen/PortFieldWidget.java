@@ -11,10 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class PortFieldWidget extends TextFieldWidget {
     {
-        this.setTextPredicate(s -> {
-            //Regex for port number
-            return s.isBlank() || s.matches("^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$");
-        });
+        this.setTextPredicate(s -> s.isBlank() || s.matches("^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$"));
         setRenderTextProvider((string, firstCharacterIndex) -> OrderedText.styledForwardsVisitedString(
                 string, isFullPort() ? Style.EMPTY : Style.EMPTY.withColor(Formatting.RED)
         ));

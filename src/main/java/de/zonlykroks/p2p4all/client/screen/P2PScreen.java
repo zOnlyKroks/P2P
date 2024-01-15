@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class P2PScreen extends Screen {
     private final Screen parent;
-    private ImageButtonWidget createScreenButton;
-    private ImageButtonWidget joinScreenButton;
 
     public P2PScreen(@Nullable Screen parent) {
         super(Text.translatable("p2p.screen.title"));
@@ -32,20 +30,18 @@ public class P2PScreen extends Screen {
 
     @Override
     protected void init() {
-        super.init();
-
         int fontHeight = this.client.textRenderer.fontHeight;
         DynamicGridWidget grid = new DynamicGridWidget(15, 10 + fontHeight + 10, width - 20, height - 20 - fontHeight - 10 - 20);
 
-        this.joinScreenButton = new ImageButtonWidget(0, 0, 0, 0, Text.translatable("p2p.screen.btn.join"), new Identifier("p2p", "textures/gui/join.webp"));
-        this.createScreenButton = new ImageButtonWidget(0, 0, 0, 0, Text.translatable("p2p.screen.btn.create"), new Identifier("p2p", "textures/gui/create.webp"));
+        ImageButtonWidget joinScreenButton = new ImageButtonWidget(0, 0, 0, 0, Text.translatable("p2p.screen.btn.join"), new Identifier("p2p", "textures/gui/join.webp"));
+        ImageButtonWidget createScreenButton = new ImageButtonWidget(0, 0, 0, 0, Text.translatable("p2p.screen.btn.create"), new Identifier("p2p", "textures/gui/create.webp"));
 
-        this.createScreenButton.setClickEvent((btn) -> this.client.setScreen(new CreateScreen(this)));
+        createScreenButton.setClickEvent((btn) -> this.client.setScreen(new CreateScreen(this)));
 
-        this.joinScreenButton.setClickEvent( (btn) -> this.client.setScreen(new JoinScreen(this)));
+        joinScreenButton.setClickEvent( (btn) -> this.client.setScreen(new JoinScreen(this)));
 
-        grid.addChild(this.createScreenButton, 2, 1);
-        grid.addChild(this.joinScreenButton, 2, 1);
+        grid.addChild(createScreenButton, 2, 1);
+        grid.addChild(joinScreenButton, 2, 1);
 
         grid.setPadding(5);
 

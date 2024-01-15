@@ -10,9 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class IpFieldWidget extends TextFieldWidget {
     {
-        this.setTextPredicate(s -> {
-            return s.isBlank() || s.matches("[0-9.]+");
-        });
+        this.setTextPredicate(s -> s.isBlank() || s.matches("[0-9.]+"));
         setRenderTextProvider((string, firstCharacterIndex) -> OrderedText.styledForwardsVisitedString(
                 string, isIp() ? Style.EMPTY : Style.EMPTY.withColor(Formatting.RED)
         ));
