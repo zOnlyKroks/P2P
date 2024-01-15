@@ -1,13 +1,11 @@
 package de.zonlykroks.p2p4all.client.screen;
 
+import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.util.GoleDownloader;
 import de.zonlykroks.p2p4all.util.GoleStarter;
-import de.zonlykroks.p2p4all.util.LogginScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.GameMenuScreen;
-import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.gui.screen.multiplayer.DirectConnectScreen;
@@ -22,7 +20,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-public class JoinScreen extends LogginScreen {
+public class JoinScreen extends Screen {
     private static final Text PORT = Text.translatable("p2p.button.title.port");
     private static final Text IP = Text.translatable("p2p.button.title.ip");
     private final Screen parent;
@@ -34,7 +32,9 @@ public class JoinScreen extends LogginScreen {
 
     @Override
     protected void init() {
-        ipToStateMap.clear();
+        P2P4AllClient.ipToStateMap.clear();
+        P2P4AllClient.clearAllTunnels();
+
         IpFieldWidget ipFieldWidget = new IpFieldWidget(MinecraftClient.getInstance().textRenderer, (this.width / 2) - 100,40, 200,20, Text.translatable("p2p.btn.join.ip.preview"));
 
         PortFieldWidget portWidget = new PortFieldWidget(MinecraftClient.getInstance().textRenderer, (this.width / 2) - 100,80,200,20, Text.translatable("p2p.btn.join.port.preview"));
@@ -47,7 +47,7 @@ public class JoinScreen extends LogginScreen {
 
             String ip = ipFieldWidget.getText();
 
-            GoleStarter goleStarter = new GoleStarter(this, ip,portWidget.getText(),false);
+            GoleStarter goleStarter = new GoleStarter(ip,portWidget.getText(),false);
             goleStarter.start();
 
             ServerInfo info = new ServerInfo("P2P", "127.0.0.1:39332", ServerInfo.ServerType.OTHER);

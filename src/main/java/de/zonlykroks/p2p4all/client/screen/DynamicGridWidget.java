@@ -20,16 +20,8 @@ public class DynamicGridWidget extends WrapperWidget {
         this.children.add(new GridItem(cellHeight, cellWidth, widget));
     }
 
-    public void addChild(ClickableWidget widget) {
-        this.children.add(new GridItem(-1, -1, widget));
-    }
-
     public void setPadding(int padding) {
         this.padding = padding;
-    }
-
-    public int getPadding() {
-        return padding;
     }
 
     private boolean canFit(int gridX, int gridY, int cellWidth, int cellHeight, int optimalCells, boolean[][] grid) {

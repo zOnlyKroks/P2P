@@ -1,6 +1,7 @@
 package de.zonlykroks.p2p4all.util;
 
 
+import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.client.screen.CreateScreen;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 
@@ -17,7 +18,7 @@ public class GoleExecutor {
 
     private static final ExecutorService e = Executors.newCachedThreadPool();
 
-    public static CompletableFuture<Void> execute(LogginScreen parent, File g,String addr2, int port1, int port2, boolean areWeTheServer, int gamePort) throws IOException {
+    public static CompletableFuture<Void> execute(File g,String addr2, int port1, int port2, boolean areWeTheServer, int gamePort) throws IOException {
         CompletableFuture<Void> future = new CompletableFuture<>();
         ProcessBuilder builder = new ProcessBuilder();
 
@@ -61,15 +62,15 @@ public class GoleExecutor {
                 }
 
                 if(!line.contains("send:") && !line.contains("wait")) {
-                    parent.ipToStateMap.put(addr2,ConnectionProgress.PUNCHING);
+                    P2P4AllClient.ipToStateMap.put(addr2,ConnectionProgress.PUNCHING);
                 }
 
                 if (line.toLowerCase().contains("wait") || line.toLowerCase().contains("tunnel created")) {
-                    parent.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
+                    P2P4AllClient.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
                 }
 
                 if (line.toLowerCase().contains("wait")) {
-                    parent.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
+                    P2P4AllClient.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
                     future.complete(null);
                 }
                 try {

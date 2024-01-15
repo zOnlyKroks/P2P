@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL20.*;
 
 public class ImageButtonWidget extends ClickableWidget {
-    private CompletableFuture<AnimatedDynamicTextureImage> image;
+    private final CompletableFuture<AnimatedDynamicTextureImage> image;
     private Consumer<ClickableWidget> onPress;
 
     public ImageButtonWidget(int x, int y, int width, int height, Text message, Identifier image) {
