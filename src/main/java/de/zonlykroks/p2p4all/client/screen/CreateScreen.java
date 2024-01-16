@@ -45,6 +45,7 @@ public class CreateScreen extends Screen {
     private boolean shouldTunnel = false;
 
     private ButtonWidget createButton;
+    private Tunnel tunnel = new Tunnel();
 
     public CreateScreen(Screen parent) {
         super(Text.translatable("p2p.screen.create.title"));
@@ -71,18 +72,10 @@ public class CreateScreen extends Screen {
 //                goleStarter.start();
                 String ip = P2PYACLConfig.get().savedIPs.get(i);
                 int port = Integer.parseInt(P2PYACLConfig.get().savedToPort.get(i));
-                Tunnel tunnel = new Tunnel();
-                try {
-                    tunnel.init(true);
-                    tunnel.setTarget(ip, port);
-                } catch (SocketException e) {
-                    e.printStackTrace(); //TODO error handling
-                }
+                P2P4AllClient.currentlyRunningTunnels.put(ip, tunnel);
+                tunnel.setTarget(ip, port);
 
-                new Thread(() -> {
-                    tunnel.connect();
-                    tunnel.createLocalTunnel();
-                }).start();
+                new Thread(() -> tunnel.connect()).start();
             }
         }
 
@@ -145,9 +138,16 @@ public class CreateScreen extends Screen {
             MinecraftClient.getInstance().setScreen(P2PYACLConfig.getInstance().generateScreen(this));
         }).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 + 25 + 25 + 5, 200, 20).build());
 
+
+        try {
+            tunnel.init(true);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        String localAddr = getPublicIP() + ":" + tunnel.getLocalPort();
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Your IP: " + getPublicIP()),
-                button -> this.client.keyboard.setClipboard(getPublicIP())
+                Text.literal("Your IP: " + localAddr),
+                button -> this.client.keyboard.setClipboard(localAddr)
         ).dimensions(startX + 5, 10 + this.textRenderer.fontHeight + 20 +25 + 25 + 5 + 20 + 10, 200, 20).build());
     }
 

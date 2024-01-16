@@ -15,7 +15,7 @@ public class Tunnel {
     private InetSocketAddress target;
     private boolean isServer;
     private Socket remote;
-    private Socket local;
+    private Socket local = new Socket();
 
     private Forwarder in;
     private Forwarder out;
@@ -49,6 +49,7 @@ public class Tunnel {
 
     public void setTarget(String targetIp, int targetPort) {
         this.target = new InetSocketAddress(targetIp, targetPort);
+        P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.PENDING);
     }
 
     private void log(Level level, String msg, Object... items) {
@@ -61,7 +62,7 @@ public class Tunnel {
     public void connect() {
         for (int i = 0; i < 20; i++) {
             log(Level.DEBUG, "punch attempt {}/{}", i+1, 20);
-            P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.PENDING);
+            P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.PUNCHING);
 
             try {
                 this.remote = new Socket();
@@ -85,7 +86,7 @@ public class Tunnel {
                 s.bind(new InetSocketAddress(sourcePort));
                 s.setSoTimeout(isServer ? 3000 : 2500);
                 this.remote = s.accept();
-                log(Level.DEBUG, "connection tunnel established as server!");
+                log(Level.INFO, "connection tunnel established as server!");
                 break;
             } catch (IOException e) {
                 if (!e.getMessage().contains("timed out")) log(Level.WARN, "IOEx punch serverside bind: " + e.getMessage());
@@ -116,7 +117,7 @@ public class Tunnel {
         log(Level.DEBUG, "setting up local tunnel");
         if (this.isServer) {
             try {
-                local.connect(new InetSocketAddress(25565));
+                local.connect(new InetSocketAddress(25565), 5000);
             } catch (Exception e) {
                 log(Level.ERROR, "failed to connect local tunnel to LAN server: " + e.getMessage());
             }
@@ -163,13 +164,15 @@ public class Tunnel {
 
     public void close() {
         try {
+            P2P4AllClient.LOGGER.info("shutting down tunnel...");
             if (this.in != null) this.in.isShuttingDown = true;
             if (this.out != null) this.out.isShuttingDown = true;
             if (this.local != null && !this.local.isClosed()) this.local.close();
             if (this.remote != null && !this.remote.isClosed()) this.remote.close();
+            P2P4AllClient.LOGGER.info("tunnel shut down successfully");
 
         } catch (IOException e) {
-            log(Level.WARN, "did not shut down tunnel sockets correctly, ports might be unusable for a few minutes");
+            P2P4AllClient.LOGGER.warn("did not shut down tunnel sockets correctly, ports might be unusable for a few minutes");
         }
     }
 }

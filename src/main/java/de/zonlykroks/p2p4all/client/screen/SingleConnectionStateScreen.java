@@ -59,10 +59,10 @@ public class SingleConnectionStateScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        var ip = P2P4AllClient.ipToStateMap.keySet().toArray(String[]::new)[0];
+        var ip = P2P4AllClient.ipToStateMap.keySet().stream().findFirst().get();
         int x = (width - textRenderer.getWidth(ip)) / 2;
         final int y = 90;
-        var connectionProgress = P2P4AllClient.ipToStateMap.values().toArray(ConnectionProgress[]::new)[0];
+        var connectionProgress = P2P4AllClient.ipToStateMap.get(ip);
         context.drawText(client.textRenderer, ip, (width - textRenderer.getWidth(ip)) / 2, y, 0xFFFFFF, false);
         connectionProgress.tryIncrementIndex();
         context.drawGuiTexture(connectionProgress.getId(), (width + textRenderer.getWidth(ip)) / 2 + 1, y, connectionProgress.getWidth(), connectionProgress.getHeight());
