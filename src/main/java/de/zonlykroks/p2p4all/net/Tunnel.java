@@ -1,6 +1,7 @@
 package de.zonlykroks.p2p4all.net;
 
 import de.zonlykroks.p2p4all.client.P2P4AllClient;
+import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.util.ConnectionProgress;
 import org.slf4j.event.Level;
 
@@ -117,7 +118,7 @@ public class Tunnel {
         log(Level.DEBUG, "setting up local tunnel");
         if (this.isServer) {
             try {
-                local.connect(new InetSocketAddress(25565), 5000);
+                local.connect(new InetSocketAddress(P2PYACLConfig.get().internalLanPort), 5000);
             } catch (Exception e) {
                 log(Level.ERROR, "failed to connect local tunnel to LAN server: " + e.getMessage());
             }
@@ -127,7 +128,7 @@ public class Tunnel {
                 ServerSocket localServer = new ServerSocket();
                 for (int i = 0; i < 20; i++) {
                     try {
-                        localServer.bind(new InetSocketAddress(25565));
+                        localServer.bind(new InetSocketAddress(P2PYACLConfig.get().internalLanPort));
                     } catch (IOException ignored) {}
                 }
                 if (!localServer.isBound()) {

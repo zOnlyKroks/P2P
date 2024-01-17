@@ -3,11 +3,13 @@ package de.zonlykroks.p2p4all.config;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.controllers.cycling.EnumController;
+import dev.isxander.yacl3.gui.controllers.string.number.IntegerFieldController;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -37,6 +39,9 @@ public class P2PYACLConfig {
     @SerialEntry
     public List<String> savedToPort = List.of(
     );
+
+    @SerialEntry
+    public int internalLanPort = 25565;
 
     @SerialEntry
     public CustomGameModeEnum lanGameMode = CustomGameModeEnum.SURVIVAL;
@@ -102,11 +107,18 @@ public class P2PYACLConfig {
                     .binding(defaults.lanGameMode, () -> config.lanGameMode, (value) -> config.lanGameMode = value)
                     .build();
 
+            var internalLanPort = Option.<Integer>createBuilder()
+                    .name(Text.translatable("p2p4all.config.gamemode"))
+                    .description(OptionDescription.of(Text.translatable("p2p4all.config.gamemode.description")))
+                    .controller(IntegerFieldControllerBuilder::create)
+                    .binding(defaults.internalLanPort, () -> config.internalLanPort, (value) -> config.internalLanPort = value)
+                    .build();
+
             return builder
                     .title(Text.translatable("p2p4all.config.title"))
                     .category(ConfigCategory.createBuilder()
                             .name(Text.translatable("p2p4all.config.title"))
-                            .options(List.of(verboseLogging, ipPingService, lanGameMode,enableCheatsInLANWorld))
+                            .options(List.of(verboseLogging, ipPingService,internalLanPort, lanGameMode,enableCheatsInLANWorld))
                             .group(ips)
                             .group(savedToPort)
                             .build());
