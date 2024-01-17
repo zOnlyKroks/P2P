@@ -138,7 +138,7 @@ public class CreateScreen extends Screen {
 
 
         try {
-            tunnel.init(true);
+            tunnel.init(true, 40000);
         } catch (SocketException e) {
             e.printStackTrace();
         }

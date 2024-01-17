@@ -3,6 +3,7 @@ package de.zonlykroks.p2p4all.client.screen;
 import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.net.Tunnel;
+import de.zonlykroks.p2p4all.util.ConnectionProgress;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -17,6 +18,7 @@ import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.URL;
 
@@ -32,12 +34,10 @@ public class JoinScreen extends Screen {
 
     @Override
     protected void init() {
-        P2P4AllClient.ipToStateMap.clear();
-        P2P4AllClient.clearAllTunnels();
 
         Tunnel tunnel = new Tunnel();
         try {
-            tunnel.init(false);
+            tunnel.init(false, 40000);
         } catch (SocketException e) {
             e.printStackTrace();
             //TODO this is a fatal error, whats the clean way to abort here?
@@ -53,26 +53,7 @@ public class JoinScreen extends Screen {
         this.addDrawableChild(portWidget);
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.PROCEED, (button) -> {
-            String ip = ipFieldWidget.getText();
-            int port = Integer.parseInt(portWidget.getText());
-
-            Tunnel t = P2P4AllClient.currentlyRunningTunnels.remove("initializing");
-            t.setTarget(ip, port);
-            P2P4AllClient.currentlyRunningTunnels.put(ip + ":" + port, t);
-
-            new Thread(() -> {
-                t.connect();
-                t.createLocalTunnel();
-            }).start();
-
-            MinecraftClient.getInstance().setScreen(new SingleConnectionStateScreen(this, () -> {
-                ServerInfo info = new ServerInfo("P2P", "localhost:" + P2PYACLConfig.get().internalLanPort, ServerInfo.ServerType.OTHER);
-                MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {
-                    if(b) {
-                        ConnectScreen.connect(this, this.client, ServerAddress.parse(info.address), info, false);
-                    }
-                }, info));
-            }));
+            restartTunnels(ipFieldWidget.getText(), Integer.parseInt(portWidget.getText()), 40000);
         }).dimensions(this.width / 2 - 100, 120, 100, 20).build());
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (button) -> {
@@ -111,6 +92,41 @@ public class JoinScreen extends Screen {
                 0xFFFFFF,
                 false
         );
+    }
+
+    private void restartTunnels(String ip, int port, int localPort) {
+        P2P4AllClient.ipToStateMap.clear();
+        P2P4AllClient.clearAllTunnels();
+
+        Tunnel t = P2P4AllClient.currentlyRunningTunnels.remove("initializing");
+
+        if (t == null) {
+            t = new Tunnel();
+            try {
+                t.init(false, localPort);
+            } catch (SocketException e) {
+                e.printStackTrace();
+                //TODO this is a fatal error, whats the clean way to abort here?
+            }
+        }
+
+        t.setTarget(ip, port);
+        P2P4AllClient.currentlyRunningTunnels.put(ip + ":" + port, t);
+
+        Tunnel tunnel = t; //once again, java lambdas are very weird about local variables
+        new Thread(() -> {
+            tunnel.connect();
+            tunnel.createLocalTunnel();
+        }).start();
+
+        MinecraftClient.getInstance().setScreen(new SingleConnectionStateScreen(this, () -> {
+            ServerInfo info = new ServerInfo("P2P", "localhost:" + P2PYACLConfig.get().internalLanPort, ServerInfo.ServerType.OTHER);
+            MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {
+                if(b) {
+                    ConnectScreen.connect(this, this.client, ServerAddress.parse(info.address), info, false);
+                }
+            }, info));
+        }));
     }
 
     private String getPublicIP() {

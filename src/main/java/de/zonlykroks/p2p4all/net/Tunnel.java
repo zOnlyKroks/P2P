@@ -20,8 +20,9 @@ public class Tunnel {
 
     private Forwarder in;
     private Forwarder out;
+    private boolean isShuttingDown;
 
-    public void init(boolean isServer) throws SocketException {
+    public void init(boolean isServer, int startPort) throws SocketException {
 
         this.isServer = isServer;
 
@@ -30,7 +31,7 @@ public class Tunnel {
 
         for (int i = 0; i < 20; i++) {
             try {
-                this.remote.bind(new InetSocketAddress(40000 + i));
+                this.remote.bind(new InetSocketAddress(startPort + i));
             } catch (Exception ignored) {}
         }
 
@@ -62,6 +63,7 @@ public class Tunnel {
 
     public void connect() {
         for (int i = 0; i < 20; i++) {
+            if (isShuttingDown) return;
             log(Level.DEBUG, "punch attempt {}/{}", i+1, 20);
             P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.PUNCHING);
 
@@ -109,6 +111,7 @@ public class Tunnel {
     }
 
     public void createLocalTunnel() {
+        if (isShuttingDown) return;
         if (this.remote == null) {
             log(Level.ERROR, "tried to create local tunnel without existing remote tunnel");
             P2P4AllClient.ipToStateMap.put(target.getHostString(), ConnectionProgress.FAILED);
@@ -165,15 +168,16 @@ public class Tunnel {
 
     public void close() {
         try {
-            P2P4AllClient.LOGGER.info("shutting down tunnel...");
+            this.isShuttingDown = true;
+            log(Level.INFO, "shutting down tunnel...");
             if (this.in != null) this.in.isShuttingDown = true;
             if (this.out != null) this.out.isShuttingDown = true;
             if (this.local != null && !this.local.isClosed()) this.local.close();
             if (this.remote != null && !this.remote.isClosed()) this.remote.close();
-            P2P4AllClient.LOGGER.info("tunnel shut down successfully");
+            log(Level.INFO, "tunnel shut down successfully");
 
         } catch (IOException e) {
-            P2P4AllClient.LOGGER.warn("did not shut down tunnel sockets correctly, ports might be unusable for a few minutes");
+            log(Level.WARN, "did not shut down tunnel sockets correctly, ports might be unusable for a few minutes");
         }
     }
 }
