@@ -19,7 +19,7 @@ public class ClientPlayNetworkHandlerMixin {
         MinecraftClient.getInstance().getServer().openToLan(
                 GameMode.byName(P2PYACLConfig.get().lanGameMode.name,GameMode.DEFAULT),
                 P2PYACLConfig.get().allowCheatsInLANWorld,
-                25565);
+                P2PYACLConfig.get().internalLanPort);
     }
 
 }
