@@ -18,6 +18,7 @@ import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 
 public class JoinScreen extends Screen {
@@ -99,7 +100,7 @@ public class JoinScreen extends Screen {
 
     private String getPublicIP() {
         try {
-            URL ip = new URL(P2PYACLConfig.get().ipPingService);
+            URL ip = new URI(P2PYACLConfig.get().ipPingService).toURL();
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     ip.openStream()));
 
