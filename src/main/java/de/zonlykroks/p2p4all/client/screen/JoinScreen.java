@@ -52,18 +52,18 @@ public class JoinScreen extends Screen {
 
             ServerInfo info = new ServerInfo("P2P", "127.0.0.1:39332", ServerInfo.ServerType.OTHER);
 
-            MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this, () -> {
+            MinecraftClient.getInstance().setScreen(new SingleConnectionStateScreen(this, () -> {
                 MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {
                     if(b) {
                         ConnectScreen.connect(this, this.client, ServerAddress.parse(info.address), info, false);
                     }
                 }, info));
             }));
-        }).dimensions(this.width / 2 - 155, 120, 200, 20).build());
+        }).dimensions(this.width / 2 - 100, 120, 100, 20).build());
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (button) -> {
             this.client.setScreen(this.parent);
-        }).dimensions(this.width / 2 - 155 + 160,  120, 200, 20).build());
+        }).dimensions(this.width / 2,  120, 100, 20).build());
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Your IP: " + getPublicIP()), button -> this.client.keyboard.setClipboard(getPublicIP())).dimensions(
                 (this.width / 2) - MinecraftClient.getInstance().textRenderer.getWidth("Your IP: " + getPublicIP()),
