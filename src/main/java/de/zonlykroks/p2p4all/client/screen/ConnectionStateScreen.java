@@ -19,7 +19,7 @@ public class ConnectionStateScreen extends Screen {
     private final long screenOpenTimeMillis;
 
     private ButtonWidget startWorldButton;
-    private long establishedConnections = 0;
+    private long establishedConnections;
 
     public ConnectionStateScreen(Screen parent, @Nullable Runnable runnable) {
         super(Text.translatable("p2p.test"));

@@ -4,8 +4,6 @@ import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.mixin.accessors.ScreenAccessor;
 import de.zonlykroks.p2p4all.net.Tunnel;
-import de.zonlykroks.p2p4all.util.GoleDownloader;
-import de.zonlykroks.p2p4all.util.GoleStarter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.QuickPlay;
 import net.minecraft.client.RunArgs;
@@ -40,7 +38,7 @@ import static org.lwjgl.opengl.GL20.*;
 public class CreateScreen extends Screen {
     private final Screen parent;
     private LevelSummary selectedWorld;
-    private CompletableFuture<List<LevelSummary>> levelsFuture = null;
+    private CompletableFuture<List<LevelSummary>> levelsFuture;
     private Optional<WorldIcon> worldIcon;
     private boolean shouldTunnel = false;
 

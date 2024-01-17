@@ -12,15 +12,16 @@ import net.minecraft.resource.ResourceType;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class P2P4AllClient implements ClientModInitializer {
 
-    public static final Map<String, ConnectionProgress> ipToStateMap = new HashMap<>();
+    public static final Map<String, ConnectionProgress> ipToStateMap = new ConcurrentHashMap<>();
 
-    public static String SERVER_CONNECT_ADDRESS = null;
+    public static String SERVER_CONNECT_ADDRESS;
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public static Map<String, Tunnel> currentlyRunningTunnels = Collections.synchronizedMap(new HashMap<>());
+    public static Map<String, Tunnel> currentlyRunningTunnels = new ConcurrentHashMap<>();
 
 
     /**
