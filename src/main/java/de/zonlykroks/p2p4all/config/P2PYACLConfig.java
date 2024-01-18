@@ -2,6 +2,7 @@ package de.zonlykroks.p2p4all.config;
 
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
+import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
@@ -33,6 +34,12 @@ public class P2PYACLConfig {
     @SerialEntry
     public List<String> savedToPort = List.of(
     );
+
+    @SerialEntry
+    public int localClientGamePort = 39332;
+
+    @SerialEntry
+    public int localServerPort = 25565;
 
     public static final ConfigClassHandler<P2PYACLConfig> HANDLER = ConfigClassHandler.createBuilder(P2PYACLConfig.class)
             .id(new Identifier("p2p4all", "config"))
@@ -92,11 +99,25 @@ public class P2PYACLConfig {
                     .binding(defaults.verboseLogging, () -> config.verboseLogging, (v) -> config.verboseLogging = v)
                     .build();
 
+            var localClientGamePort = Option.<Integer>createBuilder()
+                    .name(Text.translatable("p2p4all.config.localClientGamePort"))
+                    .description(OptionDescription.of(Text.translatable("p2p4all.config.localClientGamePort.description")))
+                    .controller(IntegerFieldControllerBuilder::create)
+                    .binding(defaults.localClientGamePort, () -> config.localClientGamePort, (v) -> config.localClientGamePort = v)
+                    .build();
+
+            var localServerPort = Option.<Integer>createBuilder()
+                    .name(Text.translatable("p2p4all.config.localServerPort"))
+                    .description(OptionDescription.of(Text.translatable("p2p4all.config.localServerPort.description")))
+                    .controller(IntegerFieldControllerBuilder::create)
+                    .binding(defaults.localServerPort, () -> config.localServerPort, (v) -> config.localServerPort = v)
+                    .build();
+
             return builder
                     .title(Text.translatable("p2p4all.config.title"))
                     .category(ConfigCategory.createBuilder()
                             .name(Text.translatable("p2p4all.config.title"))
-                            .options(List.of(verboseLogging,golePath, ipPingService))
+                            .options(List.of(verboseLogging,golePath, ipPingService, localClientGamePort, localServerPort))
                             .group(ips)
                             .group(savedToPort)
                             .build());

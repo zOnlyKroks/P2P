@@ -1,7 +1,9 @@
 package de.zonlykroks.p2p4all.util;
 
+import de.zonlykroks.p2p4all.api.GoleAPIEvents;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 
 import java.io.*;
@@ -62,6 +64,7 @@ public class GoleDownloader {
 
     private void download(String link, String fileName) throws Throwable
     {
+        GoleAPIEvents.START_DOWNLOAD.invoker().startDownload(MinecraftClient.getInstance());
         String zipFileName = fileName + ".zip";
         URL url  = new URL( link );
         HttpURLConnection http = (HttpURLConnection)url.openConnection();
@@ -122,6 +125,8 @@ public class GoleDownloader {
             P2PYACLConfig.get().golePath = extractedFileFolder.getAbsolutePath() + "/gole-darwin-amd64";
             P2PYACLConfig.save();
         }
+
+        GoleAPIEvents.FINISH_DOWNLOAD.invoker().finishDownload(MinecraftClient.getInstance());
     }
 
     public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {

@@ -1,7 +1,8 @@
 package de.zonlykroks.p2p4all.client;
 
+import de.zonlykroks.p2p4all.api.GoleAPIEvents;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
-import de.zonlykroks.p2p4all.event.MinecraftClientShutdownEvent;
+import de.zonlykroks.p2p4all.api.MinecraftClientShutdownEvent;
 import de.zonlykroks.p2p4all.util.ConnectionProgress;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -31,6 +32,16 @@ public class P2P4AllClient implements ClientModInitializer {
         if(FabricLoader.getInstance().isModLoaded("sounds")) {
             ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new YACLImageReloadListenerFabric());
         }
+
+        GoleAPIEvents.IP_STATE_CHANGE.register((ip, oldProg, newProg) -> {
+            if(oldProg != newProg) {
+                P2P4AllClient.ipToStateMap.put(ip,newProg);
+
+                if(P2PYACLConfig.get().verboseLogging) {
+                    System.out.println("IP :" + ip + "  ,from: " + oldProg + " ,to: " + newProg);
+                }
+            }
+        });
 
         MinecraftClientShutdownEvent.SHUTDOWN.register(P2P4AllClient::clearAllTunnels);
 

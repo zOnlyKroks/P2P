@@ -1,6 +1,7 @@
 package de.zonlykroks.p2p4all.util;
 
 
+import de.zonlykroks.p2p4all.api.GoleAPIEvents;
 import de.zonlykroks.p2p4all.client.P2P4AllClient;
 import de.zonlykroks.p2p4all.client.screen.CreateScreen;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
@@ -62,15 +63,15 @@ public class GoleExecutor {
                 }
 
                 if(!line.contains("send:") && !line.contains("wait")) {
-                    P2P4AllClient.ipToStateMap.put(addr2,ConnectionProgress.PUNCHING);
+                    GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(addr2, ConnectionProgress.PENDING , ConnectionProgress.PUNCHING);
                 }
 
                 if (line.toLowerCase().contains("wait") || line.toLowerCase().contains("tunnel created")) {
-                    P2P4AllClient.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
+                    GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(addr2, ConnectionProgress.PUNCHING , ConnectionProgress.SUCCESS);
                 }
 
                 if (line.toLowerCase().contains("wait")) {
-                    P2P4AllClient.ipToStateMap.put(addr2,ConnectionProgress.SUCCESS);
+                    GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(addr2, ConnectionProgress.PUNCHING , ConnectionProgress.SUCCESS);
                     future.complete(null);
                 }
                 try {

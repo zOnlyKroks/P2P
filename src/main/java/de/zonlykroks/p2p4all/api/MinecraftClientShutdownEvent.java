@@ -1,4 +1,4 @@
-package de.zonlykroks.p2p4all.event;
+package de.zonlykroks.p2p4all.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;

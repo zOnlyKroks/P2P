@@ -1,23 +1,12 @@
 package de.zonlykroks.p2p4all.util;
 
+import de.zonlykroks.p2p4all.api.GoleAPIEvents;
+
 import de.zonlykroks.p2p4all.client.P2P4AllClient;
-import de.zonlykroks.p2p4all.client.screen.CreateScreen;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
-import de.zonlykroks.p2p4all.event.MinecraftClientShutdownEvent;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
-import net.minecraft.client.gui.screen.multiplayer.DirectConnectScreen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.network.ServerAddress;
-import net.minecraft.client.network.ServerInfo;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class GoleStarter {
@@ -34,10 +23,10 @@ public class GoleStarter {
     }
 
     public void start(){
-        P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.PENDING);
+        GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(targetIp, null , ConnectionProgress.PENDING);
         new Thread(() -> {
             try {
-                int gamePort = areWeTheServer ? 25565 : 39332;
+                int gamePort = areWeTheServer ? P2PYACLConfig.get().localServerPort : P2PYACLConfig.get().localClientGamePort;
 
                 try {
                     InetAddress.getByName(targetIp);
@@ -63,6 +52,7 @@ public class GoleStarter {
                     future.cancel(true);
                     System.out.println("Failed to connect after 2 minutes and 30 seconds");
                     P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
+                    GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(targetIp, ConnectionProgress.PENDING , ConnectionProgress.FAILED);
                     return;
                 }
 
@@ -70,10 +60,8 @@ public class GoleStarter {
                     if (!areWeTheServer) {
                         System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
                         P2P4AllClient.SERVER_CONNECT_ADDRESS = "127.0.0.1:" + gamePort;
-                        P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.SUCCESS);
                     } else {
                         System.out.println("Connection established!\nWaiting for the player to join");
-                        P2P4AllClient.ipToStateMap.put(targetIp,ConnectionProgress.SUCCESS);
                     }
                 }
             }catch (Exception e) {
