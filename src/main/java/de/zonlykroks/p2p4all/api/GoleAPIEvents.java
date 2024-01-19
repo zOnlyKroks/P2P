@@ -4,6 +4,8 @@ import de.zonlykroks.p2p4all.util.ConnectionProgress;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.MinecraftClient;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface GoleAPIEvents {
 
@@ -27,17 +29,17 @@ public interface GoleAPIEvents {
 
     @FunctionalInterface
     interface StartDownload {
-        void startDownload(MinecraftClient client);
+        void startDownload(@NotNull MinecraftClient client);
     }
 
     @FunctionalInterface
     interface FinishDownload {
-        void finishDownload(MinecraftClient client);
+        void finishDownload(@NotNull MinecraftClient client);
     }
 
     @FunctionalInterface
     interface IpStateChange {
-        void ipStateChange(String ip, ConnectionProgress oldProg, ConnectionProgress newProg);
+        void ipStateChange(@NotNull String ip, @Nullable ConnectionProgress oldProg, @NotNull ConnectionProgress newProg);
     }
 
 }

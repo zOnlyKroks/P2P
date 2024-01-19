@@ -10,6 +10,7 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -60,7 +61,7 @@ public class P2PYACLConfig {
         HANDLER.save();
     }
 
-    public static YetAnotherConfigLib getInstance() {
+    public static @NotNull YetAnotherConfigLib getInstance() {
         return YetAnotherConfigLib.create(HANDLER, (P2PYACLConfig defaults, P2PYACLConfig config, YetAnotherConfigLib.Builder builder) -> {
             var ips = ListOption.<String>createBuilder()
                     .name(Text.translatable("p2p.config.ips"))

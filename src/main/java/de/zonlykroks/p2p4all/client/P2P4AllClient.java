@@ -17,7 +17,7 @@ public class P2P4AllClient implements ClientModInitializer {
 
     public static final Map<String, ConnectionProgress> ipToStateMap = new HashMap<>();
 
-    public static String SERVER_CONNECT_ADDRESS = null;
+    public static String SERVER_CONNECT_ADDRESS;
 
     public static Map<String, GoleProcess> currentlyRunningTunnels = Collections.synchronizedMap(new HashMap<>());
 
