@@ -38,5 +38,6 @@
   "p2p.config.title": "P2P Config",
   "p2p.btn.join.ip.preview": "Server IP",
   "p2p.btn.join.port.preview": "Server Port",
-  "p2p.screen.title" : "P2P Selection Screen"
+  "p2p.screen.title" : "P2P Selection Screen",
+  "p2p.button.issues": "Issues"
 }

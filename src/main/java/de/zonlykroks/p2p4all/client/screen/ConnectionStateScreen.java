@@ -72,7 +72,6 @@ public class ConnectionStateScreen extends Screen {
         context.drawText(
                 client.textRenderer,
                 Text.translatable(ESTABLISHED_CONNECTION, establishedConnections),
-                //Uhm this works, but why?
                 (width - client.textRenderer.getWidth(Text.translatable(ESTABLISHED_CONNECTION, establishedConnections))) / 2,
                 80 + textRenderer.fontHeight,
                 0x00FF00,
