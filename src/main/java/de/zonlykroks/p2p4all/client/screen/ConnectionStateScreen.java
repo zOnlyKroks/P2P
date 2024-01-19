@@ -60,6 +60,7 @@ public class ConnectionStateScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+        assert this.client != null;
         int x = width / 40;
         AtomicInteger y = new AtomicInteger(height / 10);
         P2P4AllClient.ipToStateMap.forEach((ip, connectionProgress) -> {
@@ -81,6 +82,7 @@ public class ConnectionStateScreen extends Screen {
 
     @Override
     public void close() {
+        assert this.client != null;
         this.client.setScreen(parent);
     }
 }
