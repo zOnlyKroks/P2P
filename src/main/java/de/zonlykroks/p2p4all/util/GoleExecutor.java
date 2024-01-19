@@ -19,7 +19,7 @@ public class GoleExecutor {
 
     private static final ExecutorService e = Executors.newCachedThreadPool();
 
-    public static CompletableFuture<Void> execute(File g,String addr2, int port1, int port2, boolean areWeTheServer, int gamePort) throws IOException {
+    public static GoleProcess execute(File g,String addr2, int port1, int port2, boolean areWeTheServer, int gamePort) throws IOException {
         CompletableFuture<Void> future = new CompletableFuture<>();
         ProcessBuilder builder = new ProcessBuilder();
 
@@ -84,7 +84,7 @@ public class GoleExecutor {
             }
             future.completeExceptionally(new Exception("Reached end of program's output"));
         }, e);
-        return future;
+        return new GoleProcess(p, future);
     }
 
 }

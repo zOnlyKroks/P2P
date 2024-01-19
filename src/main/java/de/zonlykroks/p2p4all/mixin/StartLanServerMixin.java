@@ -1,5 +1,6 @@
 package de.zonlykroks.p2p4all.mixin;
 
+import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -16,6 +17,6 @@ public class StartLanServerMixin {
 
     @Inject(method = "method_19851(Lnet/minecraft/server/integrated/IntegratedServer;Lnet/minecraft/client/gui/widget/ButtonWidget;)V", at = @At("HEAD"))
     public void p2p4all$changePort(IntegratedServer integratedServer, ButtonWidget button, CallbackInfo ci) {
-        this.port = 25565;
+        this.port = P2PYACLConfig.get().localServerPort;
     }
 }

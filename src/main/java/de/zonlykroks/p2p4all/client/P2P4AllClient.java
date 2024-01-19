@@ -4,6 +4,7 @@ import de.zonlykroks.p2p4all.api.GoleAPIEvents;
 import de.zonlykroks.p2p4all.config.P2PYACLConfig;
 import de.zonlykroks.p2p4all.api.MinecraftClientShutdownEvent;
 import de.zonlykroks.p2p4all.util.ConnectionProgress;
+import de.zonlykroks.p2p4all.util.GoleProcess;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
@@ -18,7 +19,7 @@ public class P2P4AllClient implements ClientModInitializer {
 
     public static String SERVER_CONNECT_ADDRESS = null;
 
-    public static Map<String, CompletableFuture<Void>> currentlyRunningTunnels = Collections.synchronizedMap(new HashMap<>());
+    public static Map<String, GoleProcess> currentlyRunningTunnels = Collections.synchronizedMap(new HashMap<>());
 
 
     /**
@@ -50,7 +51,14 @@ public class P2P4AllClient implements ClientModInitializer {
     }
 
     public static void clearAllTunnels() {
-        P2P4AllClient.currentlyRunningTunnels.values().forEach(voidCompletableFuture -> voidCompletableFuture.cancel(true));
+        P2P4AllClient.currentlyRunningTunnels.forEach((ip, goleProcess) -> {
+            if(P2PYACLConfig.get().verboseLogging) {
+                System.out.println("Terminating connection associated to ip: " + ip);
+            }
+
+            goleProcess.associatedCompletableFuture().cancel(true);
+            goleProcess.goleProcess().destroy();
+        });
         P2P4AllClient.currentlyRunningTunnels.clear();
     }
 }

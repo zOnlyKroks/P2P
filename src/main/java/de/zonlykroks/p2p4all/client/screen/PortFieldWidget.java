@@ -1,7 +1,6 @@
 package de.zonlykroks.p2p4all.client.screen;
 
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
@@ -17,16 +16,8 @@ public class PortFieldWidget extends TextFieldWidget {
         ));
     }
 
-    public PortFieldWidget(TextRenderer textRenderer, int width, int height, Text text) {
-        super(textRenderer, width, height, text);
-    }
-
     public PortFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, Text text) {
         super(textRenderer, x, y, width, height, text);
-    }
-
-    public PortFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, @Nullable TextFieldWidget copyFrom, Text text) {
-        super(textRenderer, x, y, width, height, copyFrom, text);
     }
 
     public boolean isFullPort() {

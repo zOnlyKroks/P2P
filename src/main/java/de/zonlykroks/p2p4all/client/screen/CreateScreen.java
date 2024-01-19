@@ -53,6 +53,7 @@ public class CreateScreen extends Screen {
 
     @Override
     public void close() {
+        assert client != null;
         client.setScreen(parent);
     }
 
@@ -92,6 +93,7 @@ public class CreateScreen extends Screen {
 
     @Override
     protected void init() {
+        assert this.client != null;
         int startX = this.width / 2 - 50;
 
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, (btn) -> this.client.setScreen(this.parent)).dimensions(5, 5, this.textRenderer.getWidth(ScreenTexts.BACK) + 10, 20).build());
@@ -134,6 +136,7 @@ public class CreateScreen extends Screen {
     }
 
     private void handleWorldIcon() {
+        assert this.client != null;
         if(Files.exists(selectedWorld.getIconPath())) {
             this.worldIcon = Optional.of(WorldIcon.forWorld(this.client.getTextureManager(), this.selectedWorld.getName()));
             try {

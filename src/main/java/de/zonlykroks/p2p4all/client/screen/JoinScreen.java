@@ -33,6 +33,7 @@ public class JoinScreen extends Screen {
 
     @Override
     protected void init() {
+        assert this.client != null;
         P2P4AllClient.ipToStateMap.clear();
         P2P4AllClient.clearAllTunnels();
 
@@ -77,10 +78,10 @@ public class JoinScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         int x = this.width / 2 - 100;
+        assert client != null;
         context.drawText(
                 client.textRenderer,
                 IP,
-                //TODO: Uhm this works, but why?
                 x,
                 20 + textRenderer.fontHeight,
                 0xFFFFFF,
@@ -90,7 +91,6 @@ public class JoinScreen extends Screen {
         context.drawText(
                 client.textRenderer,
                 PORT,
-                //TODO: Uhm this works, but why?
                 x,
                 60 + textRenderer.fontHeight,
                 0xFFFFFF,

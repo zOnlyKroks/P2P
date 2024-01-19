@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftClient.class)
-@Debug(export = true)
 public class MinecraftClientMixin {
 
     @Inject(method = "close", at = @At("HEAD"))

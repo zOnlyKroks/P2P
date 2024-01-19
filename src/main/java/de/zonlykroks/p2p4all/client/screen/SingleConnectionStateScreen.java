@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 public class SingleConnectionStateScreen extends Screen {
     private static final Text JOIN_WORLD = Text.translatable("p2p.screen.button.join_world");
     private static final Text CANCEL_CONNECTION = Text.translatable("p2p.screen.button.cancel_connection");
-    private static final String ESTABLISHED_CONNECTION = "p2p.screen.established_connections";
     private final Screen parent;
     private final Runnable runnable;
     private final long screenOpenTimeMillis;
@@ -20,7 +19,7 @@ public class SingleConnectionStateScreen extends Screen {
     private long establishedConnections = 0;
 
     public SingleConnectionStateScreen(Screen parent, @Nullable Runnable runnable) {
-        super(Text.translatable("p2p.test"));
+        super(Text.translatable("p2p.screen.single_connection_screen"));
         this.parent = parent;
         this.runnable = runnable;
         this.screenOpenTimeMillis = System.currentTimeMillis();
@@ -58,28 +57,19 @@ public class SingleConnectionStateScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+        assert this.client != null;
 
         var ip = P2P4AllClient.ipToStateMap.keySet().toArray(String[]::new)[0];
-        int x = (width - textRenderer.getWidth(ip)) / 2;
         final int y = 90;
         var connectionProgress = P2P4AllClient.ipToStateMap.values().toArray(ConnectionProgress[]::new)[0];
         context.drawText(client.textRenderer, ip, (width - textRenderer.getWidth(ip)) / 2, y, 0xFFFFFF, false);
         connectionProgress.tryIncrementIndex();
         context.drawGuiTexture(connectionProgress.getId(), (width + textRenderer.getWidth(ip)) / 2 + 1, y, connectionProgress.getWidth(), connectionProgress.getHeight());
-        /**
-        context.drawText(
-                client.textRenderer,
-                Text.translatable(ESTABLISHED_CONNECTION, establishedConnections),
-                //Uhm this works, but why?
-                (width - client.textRenderer.getWidth(Text.translatable(ESTABLISHED_CONNECTION, establishedConnections))) / 2,
-                80 + textRenderer.fontHeight,
-                0x00FF00,
-                false
-        );**/
     }
 
     @Override
     public void close() {
+        assert this.client != null;
         this.client.setScreen(parent);
     }
 }

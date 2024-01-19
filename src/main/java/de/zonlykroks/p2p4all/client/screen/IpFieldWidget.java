@@ -15,17 +15,8 @@ public class IpFieldWidget extends TextFieldWidget {
                 string, isIp() ? Style.EMPTY : Style.EMPTY.withColor(Formatting.RED)
         ));
     }
-
-    public IpFieldWidget(TextRenderer textRenderer, int width, int height, Text text) {
-        super(textRenderer, width, height, text);
-    }
-
     public IpFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, Text text) {
         super(textRenderer, x, y, width, height, text);
-    }
-
-    public IpFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, @Nullable TextFieldWidget copyFrom, Text text) {
-        super(textRenderer, x, y, width, height, copyFrom, text);
     }
 
     public boolean isIp() {

@@ -42,7 +42,7 @@ public class P2PYACLConfig {
     public int localServerPort = 25565;
 
     public static final ConfigClassHandler<P2PYACLConfig> HANDLER = ConfigClassHandler.createBuilder(P2PYACLConfig.class)
-            .id(new Identifier("p2p4all", "config"))
+            .id(new Identifier("p2p", "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
                     .setPath(CONFIG_PATH)
                     .build())
@@ -63,60 +63,60 @@ public class P2PYACLConfig {
     public static YetAnotherConfigLib getInstance() {
         return YetAnotherConfigLib.create(HANDLER, (P2PYACLConfig defaults, P2PYACLConfig config, YetAnotherConfigLib.Builder builder) -> {
             var ips = ListOption.<String>createBuilder()
-                    .name(Text.translatable("p2p4all.config.ips"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.ips.description")))
+                    .name(Text.translatable("p2p.config.ips"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.ips.description")))
                     .controller(StringControllerBuilder::create)
                     .initial("127.0.0.1")
                     .binding(defaults.savedIPs, () -> config.savedIPs, (v) -> config.savedIPs = v)
                     .build();
 
             var savedToPort = ListOption.<String>createBuilder()
-                    .name(Text.translatable("p2p4all.config.portip"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.portip.description")))
+                    .name(Text.translatable("p2p.config.portip"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.portip.description")))
                     .controller(StringControllerBuilder::create)
                     .initial("5000")
                     .binding(defaults.savedToPort, () -> config.savedToPort, (v) -> config.savedToPort = v)
                     .build();
 
             var golePath = Option.<String>createBuilder()
-                    .name(Text.translatable("p2p4all.config.golePath"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.golePath.description")))
+                    .name(Text.translatable("p2p.config.golePath"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.golePath.description")))
                     .controller(StringControllerBuilder::create)
                     .binding(defaults.golePath, () -> config.golePath, (v) -> config.golePath = v)
                     .build();
 
             var ipPingService = Option.<String>createBuilder()
-                    .name(Text.translatable("p2p4all.config.ipPingService"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.ipPingService.description")))
+                    .name(Text.translatable("p2p.config.ipPingService"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.ipPingService.description")))
                     .controller(StringControllerBuilder::create)
                     .binding(defaults.ipPingService, () -> config.ipPingService, (v) -> config.ipPingService = v)
                     .build();
 
             var verboseLogging = Option.<Boolean>createBuilder()
-                    .name(Text.translatable("p2p4all.config.verbose"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.verbose.description")))
+                    .name(Text.translatable("p2p.config.verbose"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.verbose.description")))
                     .controller(BooleanControllerBuilder::create)
                     .binding(defaults.verboseLogging, () -> config.verboseLogging, (v) -> config.verboseLogging = v)
                     .build();
 
             var localClientGamePort = Option.<Integer>createBuilder()
-                    .name(Text.translatable("p2p4all.config.localClientGamePort"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.localClientGamePort.description")))
+                    .name(Text.translatable("p2p.config.localClientGamePort"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.localClientGamePort.description")))
                     .controller(IntegerFieldControllerBuilder::create)
                     .binding(defaults.localClientGamePort, () -> config.localClientGamePort, (v) -> config.localClientGamePort = v)
                     .build();
 
             var localServerPort = Option.<Integer>createBuilder()
-                    .name(Text.translatable("p2p4all.config.localServerPort"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.localServerPort.description")))
+                    .name(Text.translatable("p2p.config.localServerPort"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.localServerPort.description")))
                     .controller(IntegerFieldControllerBuilder::create)
                     .binding(defaults.localServerPort, () -> config.localServerPort, (v) -> config.localServerPort = v)
                     .build();
 
             return builder
-                    .title(Text.translatable("p2p4all.config.title"))
+                    .title(Text.translatable("p2p.config.title"))
                     .category(ConfigCategory.createBuilder()
-                            .name(Text.translatable("p2p4all.config.title"))
+                            .name(Text.translatable("p2p.config.title"))
                             .options(List.of(verboseLogging,golePath, ipPingService, localClientGamePort, localServerPort))
                             .group(ips)
                             .group(savedToPort)

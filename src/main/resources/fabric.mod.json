@@ -6,8 +6,10 @@
   "description": "",
   "authors": [
     "zOnlyKroks",
-    "Four_Griffins"
+    "Four_Griffins",
+    "IMB11"
   ],
+  "icon": "assets/p2p/icon/icon.png",
   "contact": {
     "repo": "https://github.com/finnr/P2P4All"
   },

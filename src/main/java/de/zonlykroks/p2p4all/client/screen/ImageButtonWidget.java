@@ -100,8 +100,6 @@ public class ImageButtonWidget extends ClickableWidget {
         context.getMatrices().push();
         context.getMatrices().scale(fontScaling, fontScaling, 1.0f);
 
-//            context.fill(textX, textY, endX, endY, 0xFFFF2F00);
-
         drawScrollableText(context, client.textRenderer, getMessage(), textX, textY, endX, endY, 0xFFFFFF);
 
         context.getMatrices().pop();

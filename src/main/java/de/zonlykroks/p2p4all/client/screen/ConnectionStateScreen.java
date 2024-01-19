@@ -22,7 +22,7 @@ public class ConnectionStateScreen extends Screen {
     private long establishedConnections = 0;
 
     public ConnectionStateScreen(Screen parent, @Nullable Runnable runnable) {
-        super(Text.translatable("p2p.test"));
+        super(Text.translatable("p2p.screen.server_connection_state"));
         this.parent = parent;
         this.runnable = runnable;
         this.screenOpenTimeMillis = System.currentTimeMillis();
