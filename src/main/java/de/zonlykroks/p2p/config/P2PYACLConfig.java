@@ -7,6 +7,7 @@ import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
+import dev.isxander.yacl3.gui.controllers.cycling.EnumController;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -37,6 +38,9 @@ public class P2PYACLConfig {
     );
 
     @SerialEntry
+    public boolean allowCheatsInLANWorld = false;
+
+    @SerialEntry
     public int localClientGamePort = 39332;
 
     @SerialEntry
@@ -44,6 +48,9 @@ public class P2PYACLConfig {
 
     @SerialEntry
     public int connectTimeoutInSeconds = 60;
+
+    @SerialEntry
+    public CustomGameModeEnum lanGameMode = CustomGameModeEnum.SURVIVAL;
 
     public static final ConfigClassHandler<P2PYACLConfig> HANDLER = ConfigClassHandler.createBuilder(P2PYACLConfig.class)
             .id(new Identifier("p2p", "config"))
@@ -124,11 +131,25 @@ public class P2PYACLConfig {
                     .binding(defaults.connectTimeoutInSeconds, () -> config.connectTimeoutInSeconds, (v) -> config.connectTimeoutInSeconds = v)
                     .build();
 
+            var enableCheatsInLANWorld = Option.<Boolean>createBuilder()
+                    .name(Text.translatable("p2p4all.config.cheats"))
+                    .description(OptionDescription.of(Text.translatable("p2p4all.config.cheats.description")))
+                    .controller(BooleanControllerBuilder::create)
+                    .binding(defaults.allowCheatsInLANWorld, () -> config.allowCheatsInLANWorld, (v) -> config.allowCheatsInLANWorld = v)
+                    .build();
+
+            var lanGameMode = Option.<CustomGameModeEnum>createBuilder()
+                    .name(Text.translatable("p2p4all.config.gamemode"))
+                    .description(OptionDescription.of(Text.translatable("p2p4all.config.gamemode.description")))
+                    .customController(opt -> new EnumController<>(opt, CustomGameModeEnum.class))
+                    .binding(defaults.lanGameMode, () -> config.lanGameMode, (value) -> config.lanGameMode = value)
+                    .build();
+
             return builder
                     .title(Text.translatable("p2p.config.title"))
                     .category(ConfigCategory.createBuilder()
                             .name(Text.translatable("p2p.config.title"))
-                            .options(List.of(verboseLogging,golePath, ipPingService, localClientGamePort, localServerPort, connectTimeoutInSeconds))
+                            .options(List.of(verboseLogging,golePath, ipPingService, localClientGamePort, localServerPort, connectTimeoutInSeconds, lanGameMode))
                             .group(ips)
                             .group(savedToPort)
                             .build());
@@ -136,4 +157,13 @@ public class P2PYACLConfig {
 
     }
 
+    public enum CustomGameModeEnum {
+        CREATIVE("creative"), SURVIVAL("survival"), SPECTATOR("spectator"), ADVENTURE("adventure");
+
+        public final String name;
+
+        CustomGameModeEnum(String name) {
+            this.name = name;
+        }
+    }
 }
