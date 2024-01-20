@@ -68,7 +68,7 @@ public class JoinScreen extends Screen {
         }).dimensions(this.width / 2,  120, 100, 20).build());
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Your IP: " + getPublicIP()), button -> this.client.keyboard.setClipboard(getPublicIP())).dimensions(
-                (this.width / 2) - MinecraftClient.getInstance().textRenderer.getWidth("Your IP: " + getPublicIP()) + 5,
+                this.width / 2 - 100,
                 120 + textRenderer.fontHeight + 20 + 10,
                 200,
                 20).build());
