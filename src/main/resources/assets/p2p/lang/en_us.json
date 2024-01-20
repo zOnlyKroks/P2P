@@ -35,6 +35,8 @@
   "p2p.config.localClientGamePort.description": "Which port to bind our local client connection to, only change if you know what you are doing!",
   "p2p.config.localServerPort": "Local Server Port",
   "p2p.config.localServerPort.description": "Which port to bind our local server connection to, only change if you know what you are doing!",
+  "p2p.config.connectTimeoutInSeconds": "Connection Timeout in seconds",
+  "p2p.config.connectTimeoutInSeconds.description": "How long we try to establish a connection until giving up",
   "p2p.config.title": "P2P Config",
   "p2p.btn.join.ip.preview": "Server IP",
   "p2p.btn.join.port.preview": "Server Port",
