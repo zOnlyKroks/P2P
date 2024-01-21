@@ -103,7 +103,7 @@ public class CreateScreen extends Screen {
 
         this.levelsFuture = client.getLevelStorage().loadSummaries(saves);
         this.worldIcon = Optional.empty();
-        this.levelsFuture.thenAcceptAsync((val) -> {
+        this.levelsFuture.thenAccept((val) -> {
             if(!val.isEmpty()) {
                 this.selectedWorld = val.get(0);
                 handleWorldIcon();
