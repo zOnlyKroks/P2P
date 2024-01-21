@@ -1,25 +1,30 @@
 {
   "schemaVersion": 1,
-  "id": "p2p4all",
+  "id": "p2p",
   "version": "${version}",
-  "name": "P2P4All",
+  "name": "P2P",
   "description": "",
   "authors": [
     "zOnlyKroks",
-    "Four_Griffins"
+    "Four_Griffins",
+    "IMB11"
   ],
+  "icon": "assets/p2p/icon/icon.png",
   "contact": {
-    "repo": "https://github.com/finnr/P2P4All"
+    "repo": "https://github.com/zOnlyKroks/P2P"
   },
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
     "client": [
-      "de.zonlykroks.p2p4all.client.P2P4AllClient"
+      "de.zonlykroks.p2p.client.P2PClient"
+    ],
+    "modmenu": [
+      "de.zonlykroks.p2p.compat.ModMenuEntrypoint"
     ]
   },
   "mixins": [
-    "p2p4all.mixins.json"
+    "p2p.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
