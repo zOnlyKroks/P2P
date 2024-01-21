@@ -149,7 +149,7 @@ public class P2PYACLConfig {
                     .title(Text.translatable("p2p.config.title"))
                     .category(ConfigCategory.createBuilder()
                             .name(Text.translatable("p2p.config.title"))
-                            .options(List.of(verboseLogging,golePath, ipPingService, localClientGamePort, localServerPort, connectTimeoutInSeconds, lanGameMode))
+                            .options(List.of(verboseLogging,golePath, ipPingService, localClientGamePort, localServerPort, connectTimeoutInSeconds, lanGameMode, enableCheatsInLANWorld))
                             .group(ips)
                             .group(savedToPort)
                             .build());

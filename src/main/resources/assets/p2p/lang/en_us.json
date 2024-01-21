@@ -16,7 +16,7 @@
   "p2p.screen.create.btn.public": "Public",
   "p2p.screen.create.btn.private": "Private",
   "p2p.screen.create.access_info": "This server is private, and can only be accessed by players on the same internet network through the server list.",
-  "p2p.screen.create.access_info_tunnel": "This server is public - in the sense that it can be accessed by the IP addresses ... i cant explain tcp/udp punching lmfao",
+  "p2p.screen.create.access_info_tunnel": "This server is public - in the sense that it can be accessed by the IP addresses you specified in the config file.",
   "p2p.screen.join.title" : "Join a world",
   "p2p.screen.server_connection_state": "Server Connection Progress",
   "p2p.screen.single_connection_screen" : "Client Connection Progress",
