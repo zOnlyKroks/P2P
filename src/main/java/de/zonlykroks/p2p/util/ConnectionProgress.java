@@ -1,35 +1,46 @@
 package de.zonlykroks.p2p.util;
 
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 
 import java.util.List;
 
 public enum ConnectionProgress {
 
-    PENDING(getFirstPing(), 10, 8),
-    PUNCHING(getPings(), 10, 8),
-    FAILED(getPingUnknown(), 10, 8),
-    SUCCESS(getCheckmark(), 9, 8);
+    PENDING(List.of(
+            new Pair<>(0,49)
+    ), 10, 8),
+    PUNCHING(List.of(
+            new Pair<>(0,48),
+            new Pair<>(0,40),
+            new Pair<>(0,32),
+            new Pair<>(0,24),
+            new Pair<>(0,16)
+    ), 10, 8),
+    FAILED(List.of(
+            new Pair<>(0,56)
+    ), 10, 8),
+    SUCCESS(List.of(
+            new Pair<>(0,16)
+    ), 10, 8);
 
     private final int width;
     private final int height;
-    private final List<Identifier> ids;
+    private final List<Pair<Integer, Integer>> uvCoordinates;
     private int index = 0;
     private long lastUpdate;
 
-    ConnectionProgress(Identifier id, int width, int height) {
-        this(List.of(id), width, height);
-    };
-
-    ConnectionProgress(List<Identifier> ids, int width, int height) {
-        this.ids = ids;
+    ConnectionProgress(List<Pair<Integer, Integer>> uvCoordinates, int width, int height) {
+        this.uvCoordinates = uvCoordinates;
         this.width = width;
         this.height = height;
     }
 
-    public Identifier getId() {
-        if(index >= this.ids.size()) index = 0;
-        return this.ids.get(index);
+    public Pair<Integer, Integer> getId() {
+        if(index >= this.uvCoordinates.size()) index = 0;
+        System.out.println(this.name());
+        System.out.println(this.uvCoordinates.get(0).getRight());
+        return this.uvCoordinates.get(index);
     }
 
     public void tryIncrementIndex() {
@@ -37,28 +48,6 @@ public enum ConnectionProgress {
             index++;
             lastUpdate = System.currentTimeMillis();
         }
-    }
-
-    public static Identifier getCheckmark() {
-        return new Identifier("p2p","textures/icon/checkmark.png");
-    }
-
-
-    public static Identifier getPingUnknown() {
-        return new Identifier("p2p","textures/icon/ping_unknown.png");
-    }
-
-    public static Identifier getFirstPing() {
-        return new Identifier("p2p","textures/icon/ping_1.png");
-    }
-
-    public static List<Identifier> getPings() {
-        final Identifier PING_1_ICON_TEXTURE = new Identifier("p2p","textures/icon/ping_1.png");
-        final Identifier PING_2_ICON_TEXTURE = new Identifier("p2p","textures/icon/ping_2.png");
-        final Identifier PING_3_ICON_TEXTURE = new Identifier("p2p","textures/icon/ping_3.png");
-        final Identifier PING_4_ICON_TEXTURE = new Identifier("p2p","textures/icon/ping_4.png");
-        final Identifier PING_5_ICON_TEXTURE = new Identifier("p2p","textures/icon/ping_5.png");
-        return List.of(PING_1_ICON_TEXTURE, PING_2_ICON_TEXTURE, PING_3_ICON_TEXTURE, PING_4_ICON_TEXTURE, PING_5_ICON_TEXTURE);
     }
 
     public int getHeight() {

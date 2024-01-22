@@ -6,11 +6,13 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnectionStateScreen extends Screen {
+    private static final Identifier ICONS_TEXTURE = new Identifier("textures/gui/icons.png");
     private static final Text START_WORLD = Text.translatable("p2p.screen.button.start_world");
     private static final Text CANCEL_CONNECTION = Text.translatable("p2p.screen.button.cancel_connection");
     private static final String ESTABLISHED_CONNECTION = "p2p.screen.established_connections";
@@ -67,7 +69,7 @@ public class ConnectionStateScreen extends Screen {
         P2PClient.ipToStateMap.forEach((ip, connectionProgress) -> {
             context.drawText(client.textRenderer, ip, x, y.get(), 0xFFFFFF, false);
             connectionProgress.tryIncrementIndex();
-            context.drawTexture(connectionProgress.getId(), x + 70, y.get(),0,0, connectionProgress.getWidth(), connectionProgress.getHeight());
+            context.drawTexture(ICONS_TEXTURE, x + 70, y.get(),connectionProgress.getId().getLeft(),connectionProgress.getId().getRight(), connectionProgress.getWidth(), connectionProgress.getHeight());
             y.set(y.get() + 12);
         });
         context.drawText(
@@ -80,7 +82,7 @@ public class ConnectionStateScreen extends Screen {
         );
     }
 
-    @Override
+        @Override
     public void close() {
         assert this.client != null;
         this.client.setScreen(parent);
