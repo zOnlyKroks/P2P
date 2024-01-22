@@ -2,18 +2,15 @@ package de.zonlykroks.p2p.client.screen;
 
 import de.zonlykroks.p2p.client.P2PClient;
 import de.zonlykroks.p2p.util.ConnectionProgress;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnectionStateScreen extends Screen {
-    private static final Identifier ICONS_TEXTURE = new Identifier("textures/gui/icons.png");
     private static final Text START_WORLD = Text.translatable("p2p.screen.button.start_world");
     private static final Text CANCEL_CONNECTION = Text.translatable("p2p.screen.button.cancel_connection");
     private static final String ESTABLISHED_CONNECTION = "p2p.screen.established_connections";
@@ -69,7 +66,8 @@ public class ConnectionStateScreen extends Screen {
         AtomicInteger y = new AtomicInteger(height / 10);
         P2PClient.ipToStateMap.forEach((ip, connectionProgress) -> {
             context.drawText(client.textRenderer, ip, x, y.get(), 0xFFFFFF, false);
-            context.drawText(MinecraftClient.getInstance().textRenderer, connectionProgress.name(),x + 70, y.get(), 0xFFFFFF, false);
+            connectionProgress.tryIncrementIndex();
+            context.drawTexture(connectionProgress.getId(), x + 70, y.get(),0,0, connectionProgress.getWidth(), connectionProgress.getHeight());
             y.set(y.get() + 12);
         });
         context.drawText(
