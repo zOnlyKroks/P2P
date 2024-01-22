@@ -3,6 +3,7 @@ package de.zonlykroks.p2p.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.zonlykroks.p2p.client.P2PClient;
 import de.zonlykroks.p2p.config.P2PYACLConfig;
+import de.zonlykroks.p2p.mixin.QuickPlayInvoker;
 import de.zonlykroks.p2p.mixin.accessors.ScreenAccessor;
 import de.zonlykroks.p2p.util.GoleDownloader;
 import de.zonlykroks.p2p.util.GoleStarter;
@@ -57,6 +58,8 @@ public class CreateScreen extends Screen {
     }
 
     public void handleCreation() {
+        if(this.selectedWorld == null) return;
+
         P2PClient.ipToStateMap.clear();
         P2PClient.clearAllTunnels();
         // Then do your magic here.
@@ -71,7 +74,7 @@ public class CreateScreen extends Screen {
             }
         }
 
-        Runnable startWorld = () -> QuickPlay.startQuickPlay(MinecraftClient.getInstance(), new RunArgs.QuickPlay(null,selectedWorld.getName(),"",""), null);
+        Runnable startWorld = () -> QuickPlayInvoker.startSingleplayer(MinecraftClient.getInstance(), selectedWorld.getName());
 
         if(shouldTunnel) {
             MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this,startWorld));
@@ -152,7 +155,7 @@ public class CreateScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         int startX = this.width / 2 - 50;
 
-        this.renderBackground(context, mouseX, mouseY, delta);
+        this.renderBackgroundTexture(context);
 
         context.fill(5, 10 + textRenderer.fontHeight + 10, startX, this.height - 5, 0x77000000);
         context.drawBorder(5, 10 + textRenderer.fontHeight + 10, startX - 5, this.height - 5 - (10 + textRenderer.fontHeight + 10), 0x22000000);

@@ -2,13 +2,17 @@ package de.zonlykroks.p2p.client.screen;
 
 import de.zonlykroks.p2p.client.P2PClient;
 import de.zonlykroks.p2p.util.ConnectionProgress;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class SingleConnectionStateScreen extends Screen {
+    private static final Identifier ICONS_TEXTURE = new Identifier("textures/gui/icons.png");
+
     private static final Text JOIN_WORLD = Text.translatable("p2p.screen.button.join_world");
     private static final Text CANCEL_CONNECTION = Text.translatable("p2p.screen.button.cancel_connection");
     private final Screen parent;
@@ -56,6 +60,7 @@ public class SingleConnectionStateScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackgroundTexture(context);
         super.render(context, mouseX, mouseY, delta);
         assert this.client != null;
 
@@ -63,8 +68,7 @@ public class SingleConnectionStateScreen extends Screen {
         final int y = 90;
         var connectionProgress = P2PClient.ipToStateMap.values().toArray(ConnectionProgress[]::new)[0];
         context.drawText(client.textRenderer, ip, (width - textRenderer.getWidth(ip)) / 2, y, 0xFFFFFF, false);
-        connectionProgress.tryIncrementIndex();
-        context.drawGuiTexture(connectionProgress.getId(), (width + textRenderer.getWidth(ip)) / 2 + 1, y, connectionProgress.getWidth(), connectionProgress.getHeight());
+        context.drawText(MinecraftClient.getInstance().textRenderer, connectionProgress.name(), (width + textRenderer.getWidth(ip)) / 2 + 5, y, 0xFFFFFF, false);
     }
 
     @Override

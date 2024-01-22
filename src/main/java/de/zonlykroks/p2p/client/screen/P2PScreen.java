@@ -22,6 +22,7 @@ public class P2PScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackgroundTexture(context);
         super.render(context, mouseX, mouseY, delta);
 
         assert this.client != null;

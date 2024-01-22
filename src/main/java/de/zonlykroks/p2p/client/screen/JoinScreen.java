@@ -7,8 +7,8 @@ import de.zonlykroks.p2p.util.GoleStarter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
-import net.minecraft.client.gui.screen.multiplayer.DirectConnectScreen;
+import net.minecraft.client.gui.screen.ConnectScreen;
+import net.minecraft.client.gui.screen.DirectConnectScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ServerAddress;
@@ -52,7 +52,7 @@ public class JoinScreen extends Screen {
             GoleStarter goleStarter = new GoleStarter(ip,portWidget.getText(),false);
             goleStarter.start();
 
-            ServerInfo info = new ServerInfo("P2P", "127.0.0.1:39332", ServerInfo.ServerType.OTHER);
+            ServerInfo info = new ServerInfo("P2P", "127.0.0.1:39332", false);
 
             MinecraftClient.getInstance().setScreen(new SingleConnectionStateScreen(this, () -> {
                 MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {
@@ -76,6 +76,7 @@ public class JoinScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackgroundTexture(context);
         super.render(context, mouseX, mouseY, delta);
         int x = this.width / 2 - 100;
         assert client != null;

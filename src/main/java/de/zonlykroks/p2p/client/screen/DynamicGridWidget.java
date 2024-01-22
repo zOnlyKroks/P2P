@@ -1,5 +1,6 @@
 package de.zonlykroks.p2p.client.screen;
 
+import de.zonlykroks.p2p.mixin.ClickableWidgetAccessor;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.WrapperWidget;
@@ -126,7 +127,7 @@ public class DynamicGridWidget extends WrapperWidget {
             child.widget().setY(currentY);
             child.widget().setWidth(thisCellWidth - padding * 2);
 
-            child.widget().setHeight(thisCellHeight - padding * 2);
+            ((ClickableWidgetAccessor) child.widget).setHeight(thisCellHeight - padding * 2);
 
             currentX += thisCellWidth;
             if (currentX >= this.width) {

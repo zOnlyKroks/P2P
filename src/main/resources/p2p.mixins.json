@@ -8,10 +8,12 @@
     "ui.ImageRenderManagerMixin"
   ],
   "client": [
+    "ClickableWidgetAccessor",
     "ClientPlayNetworkingHandler",
     "DirectConnectScreenMixin",
     "IntegratedServerMixin",
     "MinecraftClientMixin",
+    "QuickPlayInvoker",
     "StartLanServerMixin",
     "TitleScreenMixin",
     "accessors.ScreenAccessor"
