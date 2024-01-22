@@ -57,6 +57,8 @@ public class CreateScreen extends Screen {
     }
 
     public void handleCreation() {
+        if(this.selectedWorld == null) return;
+
         P2PClient.ipToStateMap.clear();
         P2PClient.clearAllTunnels();
         // Then do your magic here.
