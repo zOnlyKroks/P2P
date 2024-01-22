@@ -18,8 +18,8 @@ import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URL;
+import java.io.PrintWriter;
+import java.net.*;
 
 public class JoinScreen extends Screen {
     private static final Text PORT = Text.translatable("p2p.button.title.port");

@@ -5,7 +5,10 @@ import de.zonlykroks.p2p.api.GoleAPIEvents;
 import de.zonlykroks.p2p.client.P2PClient;
 import de.zonlykroks.p2p.config.P2PYACLConfig;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -62,8 +65,43 @@ public class GoleStarter {
                     if (!areWeTheServer) {
                         System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
                         P2PClient.SERVER_CONNECT_ADDRESS = "127.0.0.1:" + gamePort;
+
+                        new Thread(() -> {
+                            try {
+                                Thread.sleep(6000);
+                                System.out.println("A");
+
+                                Socket socket = new Socket();
+                                socket.connect(new InetSocketAddress(InetAddress.getByName(targetIp), port2));
+                                System.out.println(socket.getInetAddress() + ":" + port2);
+
+                                PrintWriter writer = new PrintWriter(socket.getOutputStream());
+                                writer.println("TEST!");
+                                System.out.println("B");
+                                System.exit(-1);
+                            }catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }).start();
+
                     } else {
                         System.out.println("Connection established!\nWaiting for the player to join");
+
+                        new Thread(() -> {
+                            try {
+                                ServerSocket serverSocket = new ServerSocket(port1);
+                                System.out.println(serverSocket.getInetAddress() + ":" + port1);
+                                Socket sck = serverSocket.accept();
+                                BufferedReader reader = new BufferedReader(new InputStreamReader(sck.getInputStream()));
+
+                                System.out.println("A");
+                                System.out.println(reader.readLine());
+                                System.out.println("B");
+                                System.exit(-1);
+                            }catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }).start();
                     }
                 }
             }catch (Exception e) {
