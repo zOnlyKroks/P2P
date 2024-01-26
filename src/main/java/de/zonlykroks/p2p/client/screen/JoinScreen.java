@@ -35,7 +35,7 @@ public class JoinScreen extends Screen {
     protected void init() {
         assert this.client != null;
         P2PClient.ipToStateMap.clear();
-        P2PClient.clearAllTunnels();
+        P2PClient.clearAllTunnels(false);
 
         IpFieldWidget ipFieldWidget = new IpFieldWidget(MinecraftClient.getInstance().textRenderer, (this.width / 2) - 100,40, 200,20, Text.translatable("p2p.btn.join.ip.preview"));
 

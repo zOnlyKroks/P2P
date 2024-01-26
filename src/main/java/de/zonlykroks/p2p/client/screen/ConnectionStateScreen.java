@@ -44,7 +44,7 @@ public class ConnectionStateScreen extends Screen {
         this.addDrawableChild(
                 ButtonWidget.builder(CANCEL_CONNECTION, buttonWidget -> {
                             this.close();
-                            P2PClient.clearAllTunnels();
+                            P2PClient.clearAllTunnels(false);
                         })
                         .dimensions((this.width - this.textRenderer.getWidth(CANCEL_CONNECTION)) / 2, 200, this.textRenderer.getWidth(CANCEL_CONNECTION) + 10, 20)
                         .build()

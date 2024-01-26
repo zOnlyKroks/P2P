@@ -12,7 +12,7 @@ public class IntegratedServerMixin {
 
     @Inject(method = "shutdown", at = @At("HEAD"))
     public void p2p4all$shutdownInternalServer(CallbackInfo ci) {
-        P2PClient.clearAllTunnels();
+        P2PClient.clearAllTunnels(false);
     }
 
 }
