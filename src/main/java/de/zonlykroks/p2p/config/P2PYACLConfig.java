@@ -41,6 +41,8 @@ public class P2PYACLConfig {
     public boolean allowCheatsInLANWorld = false;
 
     @SerialEntry
+    public boolean closeConnectionsOnWorldLeave = true;
+    @SerialEntry
     public int localClientGamePort = 39332;
 
     @SerialEntry
@@ -103,6 +105,13 @@ public class P2PYACLConfig {
                     .binding(defaults.ipPingService, () -> config.ipPingService, (v) -> config.ipPingService = v)
                     .build();
 
+            var closeConnectionsOnWorldLeave = Option.<Boolean>createBuilder()
+                    .name(Text.translatable("p2p.config.closeConnectionsOnWorldLeave"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.closeConnectionsOnWorldLeave.description")))
+                    .controller(BooleanControllerBuilder::create)
+                    .binding(defaults.closeConnectionsOnWorldLeave, () -> config.closeConnectionsOnWorldLeave, (v) -> config.closeConnectionsOnWorldLeave = v)
+                    .build();
+
             var verboseLogging = Option.<Boolean>createBuilder()
                     .name(Text.translatable("p2p.config.verbose"))
                     .description(OptionDescription.of(Text.translatable("p2p.config.verbose.description")))
@@ -149,7 +158,7 @@ public class P2PYACLConfig {
                     .title(Text.translatable("p2p.config.title"))
                     .category(ConfigCategory.createBuilder()
                             .name(Text.translatable("p2p.config.title"))
-                            .options(List.of(verboseLogging,golePath, ipPingService, localClientGamePort, localServerPort, connectTimeoutInSeconds, lanGameMode, enableCheatsInLANWorld))
+                            .options(List.of(verboseLogging,golePath, ipPingService, localClientGamePort, localServerPort, connectTimeoutInSeconds, lanGameMode, enableCheatsInLANWorld, closeConnectionsOnWorldLeave))
                             .group(ips)
                             .group(savedToPort)
                             .build());
