@@ -28,13 +28,7 @@ public class GoleStarter {
             try {
                 int gamePort = areWeTheServer ? P2PYACLConfig.get().localServerPort : P2PYACLConfig.get().localClientGamePort;
 
-                try {
-                    InetAddress.getByName(targetIp);
-                } catch (Exception ex) {
-                    System.out.println("Couldn't parse IP address \"" + targetIp + "\"");
-                    P2PClient.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
-                    return;
-                }
+                if(!checkIP()) return;
 
                 int port = Integer.parseInt(password);
                 int port1 = areWeTheServer ? port + 1 : port;
@@ -45,30 +39,56 @@ public class GoleStarter {
 
                 P2PClient.currentlyRunningTunnels.put(targetIp, process);
 
-                long wait = System.currentTimeMillis() + (P2PYACLConfig.get().connectTimeoutInSeconds * 1000L);
-                while (!future.isDone() && System.currentTimeMillis() <= wait) {
-                    //Do nothing
-                }
+                await(future);
 
-                if (!future.isDone()) {
-                    future.cancel(true);
-                    System.out.println("Failed to connect after 2 minutes and 30 seconds");
-                    P2PClient.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
-                    GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(targetIp, ConnectionProgress.PENDING , ConnectionProgress.FAILED);
-                    return;
-                }
+                if(!checkTimeout(process)) return;
 
-                if(P2PClient.ipToStateMap.get(targetIp) == ConnectionProgress.SUCCESS) {
-                    if (!areWeTheServer) {
-                        System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
-                        P2PClient.SERVER_CONNECT_ADDRESS = "127.0.0.1:" + gamePort;
-                    } else {
-                        System.out.println("Connection established!\nWaiting for the player to join");
-                    }
-                }
+                finishConnection(gamePort);
             }catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private void finishConnection(int gamePort) {
+        if(P2PClient.ipToStateMap.get(targetIp) == ConnectionProgress.SUCCESS) {
+            if (!areWeTheServer) {
+                System.out.println("Connection established!\n\nWaiting for you to join @ 127.0.0.1:" + gamePort);
+                P2PClient.SERVER_CONNECT_ADDRESS = "127.0.0.1:" + gamePort;
+            } else {
+                System.out.println("Connection established!\nWaiting for the player to join");
+            }
+        }
+    }
+
+    private boolean checkIP() {
+        try {
+            InetAddress.getByName(targetIp);
+        } catch (Exception ex) {
+            System.out.println("Couldn't parse IP address \"" + targetIp + "\"");
+            P2PClient.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
+            return false;
+        }
+        return true;
+    }
+
+    private void await(CompletableFuture<Void> future) {
+        long wait = System.currentTimeMillis() + (P2PYACLConfig.get().connectTimeoutInSeconds * 1000L);
+        while (!future.isDone() && System.currentTimeMillis() <= wait) {
+            //Do nothing
+        }
+    }
+
+    private boolean checkTimeout(GoleProcess process) {
+        if (!process.associatedCompletableFuture().isDone()) {
+            process.associatedCompletableFuture().cancel(true);
+            process.goleProcess().destroy();
+
+            System.out.println("Failed to connect after 2 minutes and 30 seconds");
+            P2PClient.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
+            GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(targetIp, ConnectionProgress.PENDING , ConnectionProgress.FAILED);
+            return false;
+        }
+        return true;
     }
 }
