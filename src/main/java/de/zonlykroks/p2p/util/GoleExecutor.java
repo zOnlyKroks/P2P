@@ -29,8 +29,14 @@ public class GoleExecutor {
 
         String addr1 = calculateAddress1(addr2);
 
-        Set<PosixFilePermission> ownerWritable = PosixFilePermissions.fromString("rwxrwxrwx");
-        Files.setPosixFilePermissions(g.toPath(), ownerWritable);
+        try {
+            Set<PosixFilePermission> ownerWritable = PosixFilePermissions.fromString("rwxrwxrwx");
+            Files.setPosixFilePermissions(g.toPath(), ownerWritable);
+        }catch (Exception e) {
+            g.setExecutable(true);
+            g.setWritable(true);
+            g.setReadable(true);
+        }
 
         builder.command(g.getAbsolutePath(), "-v",
                 "udp",
