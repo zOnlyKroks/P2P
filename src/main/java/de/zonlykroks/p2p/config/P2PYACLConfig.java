@@ -141,15 +141,15 @@ public class P2PYACLConfig {
                     .build();
 
             var enableCheatsInLANWorld = Option.<Boolean>createBuilder()
-                    .name(Text.translatable("p2p4all.config.cheats"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.cheats.description")))
+                    .name(Text.translatable("p2p.config.cheats"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.cheats.description")))
                     .controller(BooleanControllerBuilder::create)
                     .binding(defaults.allowCheatsInLANWorld, () -> config.allowCheatsInLANWorld, (v) -> config.allowCheatsInLANWorld = v)
                     .build();
 
             var lanGameMode = Option.<CustomGameModeEnum>createBuilder()
-                    .name(Text.translatable("p2p4all.config.gamemode"))
-                    .description(OptionDescription.of(Text.translatable("p2p4all.config.gamemode.description")))
+                    .name(Text.translatable("p2p.config.gamemode"))
+                    .description(OptionDescription.of(Text.translatable("p2p.config.gamemode.description")))
                     .customController(opt -> new EnumController<>(opt, CustomGameModeEnum.class))
                     .binding(defaults.lanGameMode, () -> config.lanGameMode, (value) -> config.lanGameMode = value)
                     .build();
