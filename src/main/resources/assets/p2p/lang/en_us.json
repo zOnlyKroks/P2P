@@ -41,5 +41,11 @@
   "p2p.btn.join.ip.preview": "Server IP",
   "p2p.btn.join.port.preview": "Server Port",
   "p2p.screen.title" : "P2P Selection Screen",
-  "p2p.button.issues": "Issues"
+  "p2p.button.issues": "Issues",
+  "p2p.config.cheats": "Enable Cheats",
+  "p2p.config.cheats.description": "Weather to launch the internal server with cheats enabled or not",
+  "p2p.config.gamemode": "LAN Gamemode",
+  "p2p.config.gamemode.description": "Default LAN Gamemode of the internal server",
+  "p2p.config.closeConnectionsOnWorldLeave": "Close Connections on cancel action",
+  "p2p.config.closeConnectionsOnWorldLeave.description": "Don't touch this without reading first. When setting this to false, we do net terminate connection tries in the background so you can still connect, even when in the main menu. proceed with caution, active connections remain active!"
 }

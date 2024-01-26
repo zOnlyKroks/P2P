@@ -43,13 +43,17 @@ public class P2PClient implements ClientModInitializer {
             }
         });
 
-        MinecraftClientShutdownEvent.SHUTDOWN.register(P2PClient::clearAllTunnels);
+        MinecraftClientShutdownEvent.SHUTDOWN.register(() -> P2PClient.clearAllTunnels(true));
 
-        Thread printingHook = new Thread(P2PClient::clearAllTunnels);
+        Thread printingHook = new Thread(() -> P2PClient.clearAllTunnels(true));
         Runtime.getRuntime().addShutdownHook(printingHook);
     }
 
-    public static void clearAllTunnels() {
+    public static void clearAllTunnels(boolean completeShutdown) {
+        if(!P2PYACLConfig.get().closeConnectionsOnWorldLeave && !completeShutdown) {
+            return;
+        }
+
         P2PClient.currentlyRunningTunnels.forEach((ip, goleProcess) -> {
             if(P2PYACLConfig.get().verboseLogging) {
                 System.out.println("Terminating connection associated to ip: " + ip);
