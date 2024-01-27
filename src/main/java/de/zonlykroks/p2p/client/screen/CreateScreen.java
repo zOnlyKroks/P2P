@@ -5,6 +5,7 @@ import de.zonlykroks.p2p.client.P2PClient;
 import de.zonlykroks.p2p.config.P2PYACLConfig;
 import de.zonlykroks.p2p.mixin.QuickPlayInvoker;
 import de.zonlykroks.p2p.mixin.accessors.ScreenAccessor;
+import de.zonlykroks.p2p.util.ConnectionProgress;
 import de.zonlykroks.p2p.util.GoleDownloader;
 import de.zonlykroks.p2p.util.GoleStarter;
 import net.minecraft.client.MinecraftClient;
@@ -29,6 +30,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,9 +48,12 @@ public class CreateScreen extends Screen {
 
     private ButtonWidget createButton;
 
-    public CreateScreen(Screen parent) {
+    private final boolean inGame;
+
+    public CreateScreen(Screen parent, boolean inGame) {
         super(Text.translatable("p2p.screen.create.title"));
         this.parent = parent;
+        this.inGame = inGame;
     }
 
     @Override
@@ -58,23 +63,44 @@ public class CreateScreen extends Screen {
     }
 
     public void handleCreation() {
-        if(this.selectedWorld == null) return;
+        if(this.selectedWorld == null && !inGame) return;
 
-        P2PClient.ipToStateMap.clear();
-        P2PClient.clearAllTunnels(false);
+        if(!inGame) {
+            P2PClient.ipToStateMap.clear();
+            P2PClient.clearAllTunnels(false);
+        }
         // Then do your magic here.
         // Will gladly do
 
         new GoleDownloader();
 
-        if(shouldTunnel) {
+        if(shouldTunnel && !inGame) {
             for (int i = 0; i < P2PYACLConfig.get().savedIPs.size(); i++) {
                 GoleStarter goleStarter = new GoleStarter(P2PYACLConfig.get().savedIPs.get(i), P2PYACLConfig.get().savedToPort.get(i), true);
                 goleStarter.start();
             }
+        }else if(shouldTunnel) {
+            for (int i = 0; i < P2PYACLConfig.get().savedIPs.size(); i++) {
+                String ip = P2PYACLConfig.get().savedIPs.get(i);
+
+                if(P2PClient.ipToStateMap.containsKey(ip)) {
+                    if(P2PClient.ipToStateMap.get(ip) == ConnectionProgress.SUCCESS) {
+                        continue;
+                    }
+                }
+
+                GoleStarter goleStarter = new GoleStarter(ip, P2PYACLConfig.get().savedToPort.get(i), true);
+                goleStarter.start();
+            }
         }
 
-        Runnable startWorld = () -> QuickPlayInvoker.startSingleplayer(MinecraftClient.getInstance(), selectedWorld.getName());
+        Runnable startWorld;
+
+        if(inGame) {
+            startWorld = () -> MinecraftClient.getInstance().setScreen(null);
+        }else {
+            startWorld = () -> QuickPlayInvoker.startSingleplayer(MinecraftClient.getInstance(), selectedWorld.getName());
+        }
 
         if(shouldTunnel) {
             MinecraftClient.getInstance().setScreen(new ConnectionStateScreen(this,startWorld));
@@ -90,7 +116,7 @@ public class CreateScreen extends Screen {
 
         boolean doublePorts = P2PYACLConfig.get().savedToPort.stream().anyMatch(i -> Collections.frequency(P2PYACLConfig.get().savedToPort, i) > 1);
 
-        this.createButton.active = ipSizeMatchPortSize && !doublePorts;
+        this.createButton.active = (inGame || ipSizeMatchPortSize) && !doublePorts;
     }
 
     @Override
@@ -104,19 +130,21 @@ public class CreateScreen extends Screen {
 
         LevelStorage.LevelList saves = this.client.getLevelStorage().getLevelList();
 
-        this.levelsFuture = client.getLevelStorage().loadSummaries(saves);
-        this.worldIcon = Optional.empty();
-        this.levelsFuture.thenAccept((val) -> {
-            if(!val.isEmpty()) {
-                this.selectedWorld = val.get(0);
-                handleWorldIcon();
-            }
+       if(!inGame) {
+           this.levelsFuture = client.getLevelStorage().loadSummaries(saves);
+           this.worldIcon = Optional.empty();
+           this.levelsFuture.thenAccept((val) -> {
+               if(!val.isEmpty()) {
+                   this.selectedWorld = val.get(0);
+                   handleWorldIcon();
+               }
 
-            this.addDrawableChild(CyclingButtonWidget.<LevelSummary>builder(optVal -> Text.of(optVal.getDisplayName())).values(val).build(10, this.height - 10 - (this.textRenderer.fontHeight * 3) - 25, startX - 15, 20, Text.translatable("p2p.screen.create.world_select"), (button, value) -> {
-                selectedWorld = value;
-                handleWorldIcon();
-            }));
-        });
+               this.addDrawableChild(CyclingButtonWidget.<LevelSummary>builder(optVal -> Text.of(optVal.getDisplayName())).values(val).build(10, this.height - 10 - (this.textRenderer.fontHeight * 3) - 25, startX - 15, 20, Text.translatable("p2p.screen.create.world_select"), (button, value) -> {
+                   selectedWorld = value;
+                   handleWorldIcon();
+               }));
+           });
+       }
 
         this.addDrawableChild(this.createButton);
 
@@ -185,9 +213,10 @@ public class CreateScreen extends Screen {
         context.enableScissor(15, textRenderer.fontHeight + 25, 15 + startX - 25, textRenderer.fontHeight + 25 + startX - 25);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        if(worldIcon.isEmpty()) {
+
+        if(worldIcon == null || worldIcon.isEmpty()) {
             context.drawTexture(new Identifier("textures/misc/unknown_server.png"), 10, 10 + textRenderer.fontHeight + 10, 0, 0, startX - 15, startX - 15);
-        } else {
+        } else if(worldIcon != null){
             context.drawTexture(worldIcon.get().getTextureId(), 15, textRenderer.fontHeight + 25, 0, 0, startX - 25, startX - 25);
         }
 

@@ -77,7 +77,7 @@ public class P2PScreen extends Screen {
         ImageButtonWidget joinScreenButton = new ImageButtonWidget(0, 0, 0, 0, Text.translatable("p2p.screen.btn.join"), new Identifier("p2p", "textures/gui/join.webp"));
         ImageButtonWidget createScreenButton = new ImageButtonWidget(0, 0, 0, 0, Text.translatable("p2p.screen.btn.create"), new Identifier("p2p", "textures/gui/create.webp"));
 
-        createScreenButton.setClickEvent( (btn) -> this.client.setScreen(new CreateScreen(this)));
+        createScreenButton.setClickEvent( (btn) -> this.client.setScreen(new CreateScreen(this, false)));
 
         joinScreenButton.setClickEvent( (btn) -> this.client.setScreen(new JoinScreen(this)));
 

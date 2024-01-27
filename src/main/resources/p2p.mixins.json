@@ -11,6 +11,7 @@
     "ClickableWidgetAccessor",
     "ClientPlayNetworkingHandler",
     "DirectConnectScreenMixin",
+    "GameMenuMixin",
     "IntegratedServerMixin",
     "MinecraftClientMixin",
     "QuickPlayInvoker",
