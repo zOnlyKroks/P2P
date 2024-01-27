@@ -10,6 +10,7 @@
   "client": [
     "ClientPlayNetworkingHandler",
     "DirectConnectScreenMixin",
+    "GameMenuMixin",
     "IntegratedServerMixin",
     "MinecraftClientMixin",
     "StartLanServerMixin",
