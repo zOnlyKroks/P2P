@@ -39,9 +39,7 @@ public class GoleStarter {
 
                 P2PClient.currentlyRunningTunnels.put(targetIp, process);
 
-                await(future);
-
-                if(!checkTimeout(process)) return;
+                if(!handleWait(future)) return;
 
                 finishConnection(gamePort);
             }catch (Exception e) {
@@ -72,18 +70,14 @@ public class GoleStarter {
         return true;
     }
 
-    private void await(CompletableFuture<Void> future) {
+    private boolean handleWait(CompletableFuture<Void> future) {
         long wait = System.currentTimeMillis() + (P2PYACLConfig.get().connectTimeoutInSeconds * 1000L);
         while (!future.isDone() && System.currentTimeMillis() <= wait) {
             //Do nothing
         }
-    }
 
-    private boolean checkTimeout(GoleProcess process) {
-        if (!process.associatedCompletableFuture().isDone()) {
-            process.associatedCompletableFuture().cancel(true);
-            process.goleProcess().destroy();
-
+        if (!future.isDone()) {
+            future.cancel(true);
             System.out.println("Failed to connect after 2 minutes and 30 seconds");
             P2PClient.ipToStateMap.put(targetIp,ConnectionProgress.FAILED);
             GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(targetIp, ConnectionProgress.PENDING , ConnectionProgress.FAILED);

@@ -77,6 +77,7 @@ public class GoleExecutor {
                 }
 
                 if (line.toLowerCase().contains("wait") || line.toLowerCase().contains("tunnel created")) {
+                    future.complete(null);
                     GoleAPIEvents.IP_STATE_CHANGE.invoker().ipStateChange(addr2, ConnectionProgress.PUNCHING , ConnectionProgress.SUCCESS);
                 }
 
