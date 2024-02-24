@@ -52,7 +52,7 @@ public class JoinScreen extends Screen {
             GoleStarter goleStarter = new GoleStarter(ip,portWidget.getText(),false);
             goleStarter.start();
 
-            ServerInfo info = new ServerInfo("P2P", "127.0.0.1:39332", ServerInfo.ServerType.OTHER);
+            ServerInfo info = new ServerInfo("P2P", "127.0.0.1:" + P2PYACLConfig.get().localClientGamePort, ServerInfo.ServerType.OTHER);
 
             MinecraftClient.getInstance().setScreen(new SingleConnectionStateScreen(this, () -> {
                 MinecraftClient.getInstance().setScreen(new DirectConnectScreen(new MultiplayerScreen(this), b -> {
