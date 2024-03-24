@@ -24,6 +24,6 @@ public abstract class TitleScreenMixin extends Screen {
 
         int l = this.height / 4 + 48;
         int offset = 25;
-        p2pButton.setPosition(this.width / 2 + 104 + offset, l + 72 + 12);
+        p2pButton.setPosition(this.width / 2 - 124 - offset, l + 72 + 12);
     }
 }
